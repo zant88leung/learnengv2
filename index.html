@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>英語煉金術 V2.24</title>
+    <title>英語煉金術 V2.25</title>
     <style>
         /* 核心顏色定義 */
         :root {
@@ -61,13 +61,13 @@
         .page { display: none; padding: 20px; flex-direction: column; align-items: center; min-height: 100vh; box-sizing: border-box; }
         .page.active { display: flex; }
 
-        .switch-container { display: flex; align-items: center; justify-content: space-between; font-weight: bold; font-size: 1rem; background: rgba(255,255,255,0.05); padding: 12px 15px; border-radius: 15px; }
-        .toggle-switch { position: relative; display: inline-block; width: 80px; height: 36px; }
+        .switch-container { display: flex; align-items: center; justify-content: space-between; font-weight: bold; font-size: 1.2rem; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 15px; }
+        .toggle-switch { position: relative; display: inline-block; width: 100px; height: 44px; }
         .toggle-switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; inset: 0; background-color: #475569; transition: .4s; border-radius: 36px; border: 2px solid rgba(255,255,255,0.2); }
-        .slider:before { position: absolute; content: "OFF"; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 900; color: white; height: 26px; width: 34px; left: 3px; bottom: 3px; background-color: #1e293b; transition: .4s; border-radius: 36px; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
+        .slider { position: absolute; cursor: pointer; inset: 0; background-color: #475569; transition: .4s; border-radius: 44px; border: 2px solid rgba(255,255,255,0.2); }
+        .slider:before { position: absolute; content: "OFF"; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 900; color: white; height: 32px; width: 44px; left: 4px; bottom: 4px; background-color: #1e293b; transition: .4s; border-radius: 40px; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
         input:checked + .slider { background-color: var(--success); }
-        input:checked + .slider:before { content: "ON"; transform: translateX(38px); background-color: white; color: var(--success); }
+        input:checked + .slider:before { content: "ON"; transform: translateX(44px); background-color: white; color: var(--success); }
 
         #home-page .main-title-img { width: 100%; max-width: 224px; height: auto; margin: 10px 0; order: 1; transition: max-width 0.3s; }
         #home-page .header-ui { width: 100%; max-width: 400px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; order: 2; transition: max-width 0.3s; }
@@ -124,10 +124,10 @@
         <div class="login-box">
             <h3 style="text-align:center; margin:0; color:var(--gold);">修行者報到</h3>
             <div class="input-wrapper">
-                <input type="text" id="stu-id" class="login-input" placeholder="學號ID">
+                <input type="text" id="stu-id" class="login-input" placeholder="學生編號ID">
             </div>
             <div class="input-wrapper">
-                <input type="password" id="stu-pwd" class="login-input" placeholder="密碼">
+                <input type="password" id="stu-pwd" class="login-input" placeholder="密碼Password">
                 <span class="eye-btn" onclick="togglePassword('stu-pwd', this)">👁️</span>
             </div>
             <button id="login-btn" class="btn-init" style="font-size: 1.2rem; padding: 15px; width: 100%;" onclick="handleLogin()">進入修行</button>
@@ -154,7 +154,7 @@
         </div>
 
         <div style="width:100%; max-width:400px; border-top:1px solid #334155; padding-top:20px; opacity:0.8;">
-            <p style="font-size:0.75rem; color:#94a3b8; margin-bottom:8px; text-align:center;">⚠️ 守則：僅供系統工作人員使用。</p>
+            <p style="font-size:0.75rem; color:#94a3b8; margin-bottom:8px; text-align:center;">⚠️ 守則：此區域僅供系統工作人員使用。</p>
             <details style="text-align:center;">
                 <summary style="font-size:0.8rem; cursor:pointer; color:#64748b; margin-bottom:10px;">展開系統數據工具</summary>
                 <div style="background:var(--card); padding:15px; border-radius:10px;">
@@ -189,23 +189,13 @@
     </div>
 
     <div id="settings-modal" class="modal">
-        <div style="background:var(--card); padding:25px; border-radius:20px; border:1px solid var(--accent); width:85%; max-width:350px;">
-            <h2 style="text-align:center; color:var(--gold); margin-top:0;">系統設定</h2>
-            <div style="display:flex; flex-direction:column; gap:18px;">
+        <div style="background:var(--card); padding:30px; border-radius:20px; border:1px solid var(--accent); width:85%; max-width:350px;">
+            <h2 style="text-align:center; color:var(--gold);">系統設定</h2>
+            <div style="display:flex; flex-direction:column; gap:25px;">
                 <div>背景音樂：<input type="range" id="bgm-vol" min="0" max="1" step="0.1" value="0.5" onchange="updateAudioSettings()" style="width:100%;"></div>
                 <div>音效大小：<input type="range" id="sfx-vol" min="0" max="1" step="0.1" value="0.8" onchange="updateAudioSettings()" style="width:100%;"></div>
-                
-                <div class="switch-container">
-                    <span>背景音樂</span>
-                    <label class="toggle-switch"><input type="checkbox" id="bgm-toggle" checked onchange="updateAudioSettings()"><span class="slider"></span></label>
-                </div>
-
-                <div class="switch-container">
-                    <span>震動</span>
-                    <label class="toggle-switch"><input type="checkbox" id="vibrate-toggle" checked onchange="updateAudioSettings()"><span class="slider"></span></label>
-                </div>
-
-                <button class="btn-solid" style="margin-top:10px;" onclick="toggleSettings(false)">確定並返回</button>
+                <div class="switch-container">音樂及音效 <label class="toggle-switch"><input type="checkbox" id="bgm-toggle" checked onchange="updateAudioSettings()"><span class="slider"></span></label></div>
+                <button class="btn-solid" onclick="toggleSettings(false)">確定並返回</button>
             </div>
         </div>
     </div>
@@ -231,13 +221,14 @@
     </div>
 
     <div id="level-page" class="page">
-        <h2 style="color:var(--gold); margin-bottom: 5px;">請選擇關卡</h2>
+        <h2 style="color:var(--gold); margin-bottom: 5px;">修行關卡</h2>
         <div class="level-grid" id="level-container"></div>
         <button class="btn-solid" onclick="goHome()" style="margin-top: 40px; width: 150px;">返回主頁</button>
     </div>
 
     <div id="game-page" class="page">
         <div id="game-progress-tag" style="background:rgba(255,255,255,0.1); padding:5px 15px; border-radius:20px; font-weight:bold; color:var(--gold); margin-top:10px;">0 / 0</div>
+        
         <div id="progress-text" style="color: var(--gold); font-weight: bold; margin-top:5px;"></div>
         <div class="q-card" id="q-card-box">
             <div id="q-main" style="font-weight: bold; font-size: 1.5rem; margin-bottom: 10px;"></div>
@@ -282,7 +273,7 @@
         let vocab = []; 
         let currentUserId = "", myCoins = 0, myCollection = [], levelProgress = {}, lastDailyDate = '';
         let currentMode = '', currentLevel = 0, currentIdx = 0, correctCount = 0, gamePool = [], isDaily = false, canAnswer = true;
-        let sfxVolume = 0.8, bgmStarted = false, currentCategory = 'wea', vibrateEnabled = true; 
+        let sfxVolume = 0.8, bgmStarted = false, currentCategory = 'wea'; 
 
         const vid = document.getElementById('opening-vid'), bgm = document.getElementById('bg_music');
         const winSfx = document.getElementById('win'), loseSfx = document.getElementById('lose');
@@ -300,25 +291,35 @@
             const id = document.getElementById('stu-id').value.trim();
             const pwd = document.getElementById('stu-pwd').value.trim();
             if (!id || !pwd) return alert("請輸入 ID 與密碼");
+
             try {
                 const docRef = window.fb_doc(window.fb_db, "students", id);
                 const docSnap = await window.fb_getDoc(docRef);
+
                 if (docSnap.exists()) {
                     const userData = docSnap.data();
                     if (userData.password === pwd) {
                         const todayStr = new Date().toLocaleDateString('zh-HK');
                         await window.fb_updateDoc(docRef, { lastLoginDate: todayStr });
+
                         if (userData.role === "super admin") {
                             document.getElementById('start-overlay').style.display = 'none'; 
-                            showPage('admin-page'); loadAllStudentGrades(); return;
+                            showPage('admin-page'); 
+                            loadAllStudentGrades(); 
+                            return;
                         }
-                        currentUserId = id; myCoins = userData.coins || 0; 
+                        currentUserId = id; 
+                        myCoins = userData.coins || 0; 
                         myCollection = userData.collection || [];
                         levelProgress = userData.progress || {}; 
                         lastDailyDate = userData.lastDailyDate || ''; 
                         startCultivation(); 
-                    } else { alert("密碼錯誤！"); }
-                } else { alert("查無此 ID，請聯絡老師。"); }
+                    } else {
+                        alert("密碼錯誤！");
+                    }
+                } else {
+                    alert("查無此 ID，請聯絡老師。");
+                }
             } catch (e) { alert("連線失敗"); }
         }
 
@@ -340,12 +341,19 @@
             try {
                 const snap = await window.fb_getDocs(window.fb_collection(window.fb_db, "students"));
                 let html = '<div style="overflow-x:auto;"><table style="width:100%; border-collapse:collapse; font-size:0.8rem; min-width:600px;">';
-                html += `<tr style="background:#334155; color:var(--gold);"><th>學號</th><th>💰金幣</th><th>真意(選)</th><th>迴音(拼)</th><th>萬辭(填)</th><th>每日</th><th>最後登入</th></tr>`;
+                html += `<tr style="background:#334155; color:var(--gold);">
+                            <th style="padding:10px;">學號</th><th>💰金幣</th><th>真意(選)</th><th>迴音(拼)</th><th>萬辭(填)</th><th>每日</th><th>最後登入</th>
+                         </tr>`;
                 snap.forEach(doc => {
                     const d = doc.data(); 
                     if (d.role !== "super admin") {
                         const stat = (m) => `${d[m+'_correct'] || 0}/${d[m+'_total'] || 0}`;
-                        html += `<tr style="border-bottom:1px solid #334155; text-align:center;"><td style="padding:10px; font-weight:bold;">${doc.id}</td><td>${d.coins || 0}</td><td>${stat('choice')}</td><td>${stat('spell')}</td><td>${stat('cloze')}</td><td>${stat('daily')}</td><td style="font-size:0.7rem; color:#94a3b8;">${d.lastLoginDate || '---'}</td></tr>`;
+                        html += `<tr style="border-bottom:1px solid #334155; text-align:center;">
+                                    <td style="padding:10px; font-weight:bold;">${doc.id}</td>
+                                    <td>${d.coins || 0}</td>
+                                    <td>${stat('choice')}</td><td>${stat('spell')}</td><td>${stat('cloze')}</td><td>${stat('daily')}</td>
+                                    <td style="font-size:0.7rem; color:#94a3b8;">${d.lastLoginDate || '---'}</td>
+                                 </tr>`;
                     }
                 });
                 area.innerHTML = html + '</table></div>';
@@ -363,6 +371,7 @@
 
         function startCultivation() { document.getElementById('start-overlay').style.display = 'none'; document.getElementById('video-opening').style.display = 'flex'; vid.onended = endOpening; vid.play().catch(endOpening); bgmStarted = true; updateAudioSettings(); }
         function endOpening() { document.getElementById('video-opening').style.display = 'none'; vid.pause(); showPage('home-page'); updateCoinDisplay(); }
+        
         function showPage(id) { document.querySelectorAll('.page').forEach(p => p.classList.remove('active')); document.getElementById(id).classList.add('active'); }
         function goHome() { showPage('home-page'); updateCoinDisplay(); }
         
@@ -382,10 +391,8 @@
         function checkDailyStatus() { const today = new Date().toDateString(); document.getElementById('daily-btn').disabled = (lastDailyDate === today); document.getElementById('daily-text').innerText = (lastDailyDate === today ? "明日再戰" : "每日挑戰"); }
         
         function toggleSettings(show) { document.getElementById('settings-modal').style.display = show ? 'flex' : 'none'; }
-        
         function updateAudioSettings() { 
             const isChecked = document.getElementById('bgm-toggle').checked;
-            vibrateEnabled = document.getElementById('vibrate-toggle').checked; // 更新震動開關狀態
             bgm.volume = document.getElementById('bgm-vol').value; 
             sfxVolume = document.getElementById('sfx-vol').value; 
             winSfx.volume = sfxVolume; loseSfx.volume = sfxVolume;
@@ -426,6 +433,19 @@
         function openLevelSelect(mode) {
             currentMode = mode; isDaily = false;
             const container = document.getElementById('level-container'); container.innerHTML = '';
+            
+            // --- 更新標題與顏色邏輯 ---
+            const titleInfo = {
+                'choice': { text: '真意之殿關卡', color: 'var(--accent)' }, // 靛藍
+                'spell': { text: '迴音之谷關卡', color: 'var(--success)' }, // 翡翠綠
+                'cloze': { text: '萬辭之塔關卡', color: 'var(--gold)' }     // 琥珀金
+            };
+            const header = document.querySelector('#level-page h2');
+            const info = titleInfo[mode] || { text: '修行關卡', color: 'var(--gold)' };
+            header.innerText = info.text;
+            header.style.color = info.color;
+            // ---------------------
+
             const max = Math.ceil(vocab.length / 5);
             for(let i=1; i<=max; i++) {
                 const div = document.createElement('div'); div.className = `level-card ${mode} ${levelProgress[mode+'_'+i] ? 'all-correct' : ''}`;
@@ -451,7 +471,9 @@
                 main.innerHTML = `<button class="opt-btn" onclick="speak('${q.en}')">🔊 聽音朗讀</button>`;
                 hint.innerText = `聽音拼字 (解釋：${q.cn})`; 
                 const input = document.createElement('input'); input.className = 'input-box'; input.placeholder = "請輸入英文生字"; input.style.marginBottom = "15px";
-                const sub = document.createElement('button'); sub.className = 'btn-solid'; sub.style.width = "100%"; sub.innerText = "提交回答";
+                const sub = document.createElement('button'); sub.className = 'btn-solid'; sub.style.width = "100%"; 
+                sub.style.background = "linear-gradient(135deg, #10b981 0%, #059669 100%)";
+                sub.innerText = "提交回答";
                 sub.onclick = () => checkResult(input.value.trim().toLowerCase() === q.en.toLowerCase(), q.en);
                 action.append(input, sub); setTimeout(() => speak(q.en), 800);
             } else if (q.type === 'choice') {
@@ -478,10 +500,9 @@
             if(isRight) { 
                 correctCount++; myCoins += (isDaily ? 20 : 1); 
                 levelProgress[m+'_correct'] = (levelProgress[m+'_correct'] || 0) + 1;
-
-                // --- 檢查震動開關是否開啟 ---
-if (vibrateEnabled && navigator.vibrate) {
-    navigator.vibrate([100, 30, 100]);
+                
+                if (navigator.vibrate) {
+                    navigator.vibrate(100); 
                 }
 
                 winSfx.currentTime = 0; winSfx.play();
