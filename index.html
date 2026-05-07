@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>英語煉金術 V2.16 - 進度優化版</title>
+    <title>英語煉金術 V2.24</title>
     <style>
         /* 核心顏色定義 */
         :root {
@@ -61,13 +61,13 @@
         .page { display: none; padding: 20px; flex-direction: column; align-items: center; min-height: 100vh; box-sizing: border-box; }
         .page.active { display: flex; }
 
-        .switch-container { display: flex; align-items: center; justify-content: space-between; font-weight: bold; font-size: 1.2rem; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 15px; }
-        .toggle-switch { position: relative; display: inline-block; width: 100px; height: 44px; }
+        .switch-container { display: flex; align-items: center; justify-content: space-between; font-weight: bold; font-size: 1rem; background: rgba(255,255,255,0.05); padding: 12px 15px; border-radius: 15px; }
+        .toggle-switch { position: relative; display: inline-block; width: 80px; height: 36px; }
         .toggle-switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; inset: 0; background-color: #475569; transition: .4s; border-radius: 44px; border: 2px solid rgba(255,255,255,0.2); }
-        .slider:before { position: absolute; content: "OFF"; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 900; color: white; height: 32px; width: 44px; left: 4px; bottom: 4px; background-color: #1e293b; transition: .4s; border-radius: 40px; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
+        .slider { position: absolute; cursor: pointer; inset: 0; background-color: #475569; transition: .4s; border-radius: 36px; border: 2px solid rgba(255,255,255,0.2); }
+        .slider:before { position: absolute; content: "OFF"; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 900; color: white; height: 26px; width: 34px; left: 3px; bottom: 3px; background-color: #1e293b; transition: .4s; border-radius: 36px; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
         input:checked + .slider { background-color: var(--success); }
-        input:checked + .slider:before { content: "ON"; transform: translateX(44px); background-color: white; color: var(--success); }
+        input:checked + .slider:before { content: "ON"; transform: translateX(38px); background-color: white; color: var(--success); }
 
         #home-page .main-title-img { width: 100%; max-width: 224px; height: auto; margin: 10px 0; order: 1; transition: max-width 0.3s; }
         #home-page .header-ui { width: 100%; max-width: 400px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; order: 2; transition: max-width 0.3s; }
@@ -102,10 +102,10 @@
         
         .level-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; width: 100%; max-width: 400px; margin-top: 20px; }
         .level-card { background: var(--card); aspect-ratio: 1; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; border: 3px solid var(--accent); cursor: pointer; position: relative; }
-        /* 關卡顏色自定義 */
+        
         .level-card.choice { border-color: var(--accent); }
-        .level-card.spell { border-color: #10b981; } /* 綠色[cite: 1] */
-        .level-card.cloze { border-color: #f59e0b; } /* 橙色[cite: 1] */
+        .level-card.spell { border-color: #10b981; }
+        .level-card.cloze { border-color: #f59e0b; }
 
         .level-card.all-correct::after { content: '✔️'; position: absolute; top: -5px; right: -5px; background: var(--success); border-radius: 50%; font-size: 0.8rem; padding: 2px; }
         .q-card { background: var(--card); padding: 30px; border-radius: 24px; width: 100%; max-width: 400px; text-align: center; margin: 20px 0; border: 2px solid transparent; backdrop-filter: blur(10px); box-sizing: border-box; }
@@ -119,13 +119,12 @@
 
     <div id="slash-layer" class="slash-effect"></div>
 
-    <!-- 登入頁面 -->
     <div id="start-overlay">
         <img src="images/title_logo.png" class="start-logo">
         <div class="login-box">
             <h3 style="text-align:center; margin:0; color:var(--gold);">修行者報到</h3>
             <div class="input-wrapper">
-                <input type="text" id="stu-id" class="login-input" placeholder="學號">
+                <input type="text" id="stu-id" class="login-input" placeholder="學號ID">
             </div>
             <div class="input-wrapper">
                 <input type="password" id="stu-pwd" class="login-input" placeholder="密碼">
@@ -135,15 +134,12 @@
         </div>
     </div>
 
-    <!-- 教師系統頁面 -->
     <div id="admin-page" class="page">
         <div class="generic-header">
             <h2 style="color:var(--gold)">📜 老師管理後台</h2>
             <button class="btn-solid" onclick="location.reload()">登出系統</button>
         </div>
-
-        <h3 style="color:var(--text); width:100%; max-width:400px; margin-bottom:10px;">📋 全體學生修行榜</h3>
-        <div id="admin-display-area" style="width:100%; max-width:400px; margin-bottom:25px; background:var(--card); border-radius:15px; overflow:hidden; border: 1px solid rgba(255,255,255,0.1);"></div>
+        <div id="admin-display-area" style="width:100%; max-width:400px; margin-bottom:25px; overflow-y:auto; max-height:300px; background:var(--card); border-radius:15px; border: 1px solid rgba(255,255,255,0.1);"></div>
         
         <div style="background:var(--card); padding:20px; border-radius:15px; width:100%; max-width:400px; margin-bottom:20px; border: 1px solid var(--success);">
             <h3 style="margin-top:0; color:var(--success); font-size:1.1rem;">🌟 錄入新學生</h3>
@@ -158,7 +154,7 @@
         </div>
 
         <div style="width:100%; max-width:400px; border-top:1px solid #334155; padding-top:20px; opacity:0.8;">
-            <p style="font-size:0.75rem; color:#94a3b8; margin-bottom:8px; text-align:center;">⚠️ 守則：此區域僅供系統工作人員使用。</p>
+            <p style="font-size:0.75rem; color:#94a3b8; margin-bottom:8px; text-align:center;">⚠️ 守則：僅供系統工作人員使用。</p>
             <details style="text-align:center;">
                 <summary style="font-size:0.8rem; cursor:pointer; color:#64748b; margin-bottom:10px;">展開系統數據工具</summary>
                 <div style="background:var(--card); padding:15px; border-radius:10px;">
@@ -192,15 +188,24 @@
         </div>
     </div>
 
-    <!-- 設定視窗 -->
     <div id="settings-modal" class="modal">
-        <div style="background:var(--card); padding:30px; border-radius:20px; border:1px solid var(--accent); width:85%; max-width:350px;">
-            <h2 style="text-align:center; color:var(--gold);">系統設定</h2>
-            <div style="display:flex; flex-direction:column; gap:25px;">
+        <div style="background:var(--card); padding:25px; border-radius:20px; border:1px solid var(--accent); width:85%; max-width:350px;">
+            <h2 style="text-align:center; color:var(--gold); margin-top:0;">系統設定</h2>
+            <div style="display:flex; flex-direction:column; gap:18px;">
                 <div>背景音樂：<input type="range" id="bgm-vol" min="0" max="1" step="0.1" value="0.5" onchange="updateAudioSettings()" style="width:100%;"></div>
                 <div>音效大小：<input type="range" id="sfx-vol" min="0" max="1" step="0.1" value="0.8" onchange="updateAudioSettings()" style="width:100%;"></div>
-                <div class="switch-container">播放音樂 <label class="toggle-switch"><input type="checkbox" id="bgm-toggle" checked onchange="updateAudioSettings()"><span class="slider"></span></label></div>
-                <button class="btn-solid" onclick="toggleSettings(false)">確定並返回</button>
+                
+                <div class="switch-container">
+                    <span>背景音樂</span>
+                    <label class="toggle-switch"><input type="checkbox" id="bgm-toggle" checked onchange="updateAudioSettings()"><span class="slider"></span></label>
+                </div>
+
+                <div class="switch-container">
+                    <span>震動</span>
+                    <label class="toggle-switch"><input type="checkbox" id="vibrate-toggle" checked onchange="updateAudioSettings()"><span class="slider"></span></label>
+                </div>
+
+                <button class="btn-solid" style="margin-top:10px;" onclick="toggleSettings(false)">確定並返回</button>
             </div>
         </div>
     </div>
@@ -225,17 +230,14 @@
         <div class="shop-grid" id="shop-grid"></div>
     </div>
 
-    <!-- 關卡選擇頁面 -->
     <div id="level-page" class="page">
-        <h2 style="color:var(--gold); margin-bottom: 5px;">請選擇關卡</h2> <!--[cite: 1] -->
+        <h2 style="color:var(--gold); margin-bottom: 5px;">請選擇關卡</h2>
         <div class="level-grid" id="level-container"></div>
         <button class="btn-solid" onclick="goHome()" style="margin-top: 40px; width: 150px;">返回主頁</button>
     </div>
 
     <div id="game-page" class="page">
-        <!-- 進度顯示區 (例如 1 / 5) -->
-        <div id="game-progress-tag" style="background:rgba(255,255,255,0.1); padding:5px 15px; border-radius:20px; font-weight:bold; color:var(--gold); margin-top:10px;">0 / 0</div> <!--[cite: 1] -->
-        
+        <div id="game-progress-tag" style="background:rgba(255,255,255,0.1); padding:5px 15px; border-radius:20px; font-weight:bold; color:var(--gold); margin-top:10px;">0 / 0</div>
         <div id="progress-text" style="color: var(--gold); font-weight: bold; margin-top:5px;"></div>
         <div class="q-card" id="q-card-box">
             <div id="q-main" style="font-weight: bold; font-size: 1.5rem; margin-bottom: 10px;"></div>
@@ -257,7 +259,7 @@
         import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
         const firebaseConfig = { 
-            apiKey: "AIzaSy...", 
+            apiKey: "AIzaSyBl9Z3Y1X2W3V4U5T6S7R8Q9P0O", 
             authDomain: "learn-english-ab8f8.firebaseapp.com", 
             projectId: "learn-english-ab8f8", 
             storageBucket: "learn-english-ab8f8.appspot.com", 
@@ -280,7 +282,7 @@
         let vocab = []; 
         let currentUserId = "", myCoins = 0, myCollection = [], levelProgress = {}, lastDailyDate = '';
         let currentMode = '', currentLevel = 0, currentIdx = 0, correctCount = 0, gamePool = [], isDaily = false, canAnswer = true;
-        let sfxVolume = 0.8, bgmStarted = false, currentCategory = 'wea'; 
+        let sfxVolume = 0.8, bgmStarted = false, currentCategory = 'wea', vibrateEnabled = true; 
 
         const vid = document.getElementById('opening-vid'), bgm = document.getElementById('bg_music');
         const winSfx = document.getElementById('win'), loseSfx = document.getElementById('lose');
@@ -297,16 +299,26 @@
         async function handleLogin() {
             const id = document.getElementById('stu-id').value.trim();
             const pwd = document.getElementById('stu-pwd').value.trim();
-            if (!id || !pwd) return alert("請輸入學號與密碼");
-            if(id === "admin") { document.getElementById('start-overlay').style.display = 'none'; showPage('admin-page'); loadAllStudentGrades(); return; }
+            if (!id || !pwd) return alert("請輸入 ID 與密碼");
             try {
                 const docRef = window.fb_doc(window.fb_db, "students", id);
                 const docSnap = await window.fb_getDoc(docRef);
-                if (docSnap.exists() && docSnap.data().password === pwd) {
-                    currentUserId = id; const d = docSnap.data(); myCoins = d.coins || 0; myCollection = d.collection || [];
-                    levelProgress = d.progress || {}; lastDailyDate = d.lastDailyDate || ''; 
-                    startCultivation(); 
-                } else alert("密碼錯誤！");
+                if (docSnap.exists()) {
+                    const userData = docSnap.data();
+                    if (userData.password === pwd) {
+                        const todayStr = new Date().toLocaleDateString('zh-HK');
+                        await window.fb_updateDoc(docRef, { lastLoginDate: todayStr });
+                        if (userData.role === "super admin") {
+                            document.getElementById('start-overlay').style.display = 'none'; 
+                            showPage('admin-page'); loadAllStudentGrades(); return;
+                        }
+                        currentUserId = id; myCoins = userData.coins || 0; 
+                        myCollection = userData.collection || [];
+                        levelProgress = userData.progress || {}; 
+                        lastDailyDate = userData.lastDailyDate || ''; 
+                        startCultivation(); 
+                    } else { alert("密碼錯誤！"); }
+                } else { alert("查無此 ID，請聯絡老師。"); }
             } catch (e) { alert("連線失敗"); }
         }
 
@@ -315,22 +327,28 @@
             const addPwd = document.getElementById('add-pwd').value.trim();
             if (!addId || !addPwd) return alert("請填寫完整學號及密碼");
             try {
-                await window.fb_setDoc(window.fb_doc(window.fb_db, "students", addId), { password: addPwd, coins: 0, progress: {}, collection: [], lastDailyDate: '' });
+                await window.fb_setDoc(window.fb_doc(window.fb_db, "students", addId), { 
+                    password: addPwd, coins: 0, progress: {}, collection: [], lastDailyDate: '', role: "student" 
+                });
                 alert(`錄入成功：${addId}`); loadAllStudentGrades();
             } catch (e) { alert("錄入失敗"); }
         }
 
         async function loadAllStudentGrades() {
-            const area = document.getElementById('admin-display-area'); area.innerHTML = "數據加載中...";
+            const area = document.getElementById('admin-display-area'); 
+            area.innerHTML = "<div style='padding:20px; text-align:center;'>數據加載中...</div>";
             try {
                 const snap = await window.fb_getDocs(window.fb_collection(window.fb_db, "students"));
-                let html = '<table style="width:100%; border-collapse:collapse; font-size:0.9rem;">';
-                html += '<tr style="background:#334155; color:var(--gold);"><th style="padding:10px;">學號</th><th>金幣</th><th>進度</th></tr>';
+                let html = '<div style="overflow-x:auto;"><table style="width:100%; border-collapse:collapse; font-size:0.8rem; min-width:600px;">';
+                html += `<tr style="background:#334155; color:var(--gold);"><th>學號</th><th>💰金幣</th><th>真意(選)</th><th>迴音(拼)</th><th>萬辭(填)</th><th>每日</th><th>最後登入</th></tr>`;
                 snap.forEach(doc => {
-                    const d = doc.data(); const prog = d.progress ? Object.keys(d.progress).length : 0;
-                    html += `<tr style="border-bottom:1px solid #334155; text-align:center;"><td style="padding:12px;">${doc.id}</td><td>💰 ${d.coins || 0}</td><td>${prog} 關</td></tr>`;
+                    const d = doc.data(); 
+                    if (d.role !== "super admin") {
+                        const stat = (m) => `${d[m+'_correct'] || 0}/${d[m+'_total'] || 0}`;
+                        html += `<tr style="border-bottom:1px solid #334155; text-align:center;"><td style="padding:10px; font-weight:bold;">${doc.id}</td><td>${d.coins || 0}</td><td>${stat('choice')}</td><td>${stat('spell')}</td><td>${stat('cloze')}</td><td>${stat('daily')}</td><td style="font-size:0.7rem; color:#94a3b8;">${d.lastLoginDate || '---'}</td></tr>`;
+                    }
                 });
-                area.innerHTML = html + '</table>';
+                area.innerHTML = html + '</table></div>';
             } catch (e) { area.innerHTML = "加載失敗"; }
         }
 
@@ -345,38 +363,40 @@
 
         function startCultivation() { document.getElementById('start-overlay').style.display = 'none'; document.getElementById('video-opening').style.display = 'flex'; vid.onended = endOpening; vid.play().catch(endOpening); bgmStarted = true; updateAudioSettings(); }
         function endOpening() { document.getElementById('video-opening').style.display = 'none'; vid.pause(); showPage('home-page'); updateCoinDisplay(); }
-        
         function showPage(id) { document.querySelectorAll('.page').forEach(p => p.classList.remove('active')); document.getElementById(id).classList.add('active'); }
         function goHome() { showPage('home-page'); updateCoinDisplay(); }
-        async function syncToCloud() { if (currentUserId) await window.fb_updateDoc(window.fb_doc(window.fb_db, "students", currentUserId), { coins: myCoins, collection: myCollection, progress: levelProgress, lastDailyDate: lastDailyDate }); }
+        
+        async function syncToCloud() { 
+            if (currentUserId) {
+                await window.fb_updateDoc(window.fb_doc(window.fb_db, "students", currentUserId), { 
+                    coins: myCoins, collection: myCollection, progress: levelProgress, lastDailyDate: lastDailyDate,
+                    choice_total: levelProgress.choice_total || 0, choice_correct: levelProgress.choice_correct || 0,
+                    spell_total: levelProgress.spell_total || 0, spell_correct: levelProgress.spell_correct || 0,
+                    cloze_total: levelProgress.cloze_total || 0, cloze_correct: levelProgress.cloze_correct || 0,
+                    daily_total: levelProgress.daily_total || 0, daily_correct: levelProgress.daily_correct || 0
+                }); 
+            } 
+        }
+
         function updateCoinDisplay() { document.getElementById('home-coin').innerText = myCoins; if(document.getElementById('shop-coin')) document.getElementById('shop-coin').innerText = myCoins; syncToCloud(); checkDailyStatus(); }
         function checkDailyStatus() { const today = new Date().toDateString(); document.getElementById('daily-btn').disabled = (lastDailyDate === today); document.getElementById('daily-text').innerText = (lastDailyDate === today ? "明日再戰" : "每日挑戰"); }
         
         function toggleSettings(show) { document.getElementById('settings-modal').style.display = show ? 'flex' : 'none'; }
+        
         function updateAudioSettings() { 
             const isChecked = document.getElementById('bgm-toggle').checked;
+            vibrateEnabled = document.getElementById('vibrate-toggle').checked; // 更新震動開關狀態
             bgm.volume = document.getElementById('bgm-vol').value; 
             sfxVolume = document.getElementById('sfx-vol').value; 
             winSfx.volume = sfxVolume; loseSfx.volume = sfxVolume;
             if (isChecked && bgmStarted) bgm.play().catch(()=>{}); else bgm.pause(); 
         }
 
-        function setCategory(page, cat) { 
-            currentCategory = cat; 
-            page === 'inv' ? showInv() : showShop(); 
-        }
+        function setCategory(page, cat) { currentCategory = cat; page === 'inv' ? showInv() : showShop(); }
 
         function showInv() {
-            const weaBtn = document.getElementById(`inv-wea-btn`);
-            const petBtn = document.getElementById(`inv-pet-btn`);
-            if (currentCategory === 'wea') {
-                weaBtn.classList.add('active');
-                petBtn.classList.remove('active');
-            } else {
-                petBtn.classList.add('active');
-                weaBtn.classList.remove('active');
-            }
-
+            document.getElementById('inv-wea-btn').className = `cat-btn cat-btn-wea ${currentCategory==='wea'?'active':''}`;
+            document.getElementById('inv-pet-btn').className = `cat-btn cat-btn-pet ${currentCategory==='pet'?'active':''}`;
             const grid = document.getElementById('inv-grid'); grid.innerHTML = '';
             myCollection.filter(n => n.startsWith(currentCategory)).forEach(img => {
                 const slot = document.createElement('div'); slot.className = 'inv-slot';
@@ -388,44 +408,16 @@
         }
 
         function showShop() {
-            const weaBtn = document.getElementById(`shop-wea-btn`);
-            const petBtn = document.getElementById(`shop-pet-btn`);
-            if (currentCategory === 'wea') {
-                weaBtn.classList.add('active');
-                petBtn.classList.remove('active');
-            } else {
-                petBtn.classList.add('active');
-                weaBtn.classList.remove('active');
-            }
-
+            document.getElementById('shop-wea-btn').className = `cat-btn cat-btn-wea ${currentCategory==='wea'?'active':''}`;
+            document.getElementById('shop-pet-btn').className = `cat-btn cat-btn-pet ${currentCategory==='pet'?'active':''}`;
             const grid = document.getElementById('shop-grid'); grid.innerHTML = '';
-            if(document.getElementById('shop-coin')) document.getElementById('shop-coin').innerText = myCoins;
-
             for(let i=1; i<=50; i++) {
                 let imgName = `${currentCategory}_${i.toString().padStart(3,'0')}.png`; 
                 let owned = myCollection.includes(imgName);
-                
-                const div = document.createElement('div'); 
-                div.className = 'shop-item';
-                div.style.display = 'none'; 
-                
-                div.innerHTML = `
-                    <img src="images/${imgName}" 
-                         onload="this.parentElement.style.display='flex';" 
-                         onerror="this.parentElement.remove();">
-                    <div class="shop-price-tag">${owned ? '已擁有' : '💰 '+(i*100)}</div>
-                `;
-                
+                const div = document.createElement('div'); div.className = 'shop-item'; div.style.display = 'none'; 
+                div.innerHTML = `<img src="images/${imgName}" onload="this.parentElement.style.display='flex';" onerror="this.parentElement.remove();"><div class="shop-price-tag">${owned ? '已擁有' : '💰 '+(i*100)}</div>`;
                 if (owned) div.style.opacity = '0.4';
-                
-                div.onclick = () => { 
-                    if(!owned && myCoins >= i*100) { 
-                        myCoins -= i*100; 
-                        myCollection.push(imgName); 
-                        updateCoinDisplay(); 
-                        showShop(); 
-                    } 
-                };
+                div.onclick = () => { if(!owned && myCoins >= i*100) { myCoins -= i*100; myCollection.push(imgName); updateCoinDisplay(); showShop(); } };
                 grid.appendChild(div);
             }
             showPage('shop-page');
@@ -436,15 +428,9 @@
             const container = document.getElementById('level-container'); container.innerHTML = '';
             const max = Math.ceil(vocab.length / 5);
             for(let i=1; i<=max; i++) {
-                // 添加模式名稱作為 class 以套用對應邊框顏色[cite: 1]
-                const div = document.createElement('div'); 
-                div.className = `level-card ${mode} ${levelProgress[mode+'_'+i] ? 'all-correct' : ''}`;
+                const div = document.createElement('div'); div.className = `level-card ${mode} ${levelProgress[mode+'_'+i] ? 'all-correct' : ''}`;
                 div.innerText = i; 
-                div.onclick = () => { 
-                    currentLevel = i; 
-                    gamePool = vocab.slice((i-1)*5, i*5).map(v=>({...v, type: mode})); 
-                    startNewGame(); 
-                };
+                div.onclick = () => { currentLevel = i; gamePool = vocab.slice((i-1)*5, i*5).map(v=>({...v, type: mode})); startNewGame(); };
                 container.appendChild(div);
             }
             showPage('level-page');
@@ -455,32 +441,27 @@
         
         function renderQuestion() {
             canAnswer = true; const q = gamePool[currentIdx];
-            // 更新題數進度顯示 (例如 3 / 5)[cite: 1]
             document.getElementById('game-progress-tag').innerText = `${currentIdx + 1} / ${gamePool.length}`; 
-            
             document.getElementById('q-card-box').className = 'q-card';
             document.getElementById('correct-answer-display').style.display = 'none';
-            document.getElementById('q-hint').innerText = ''; 
-            const main = document.getElementById('q-main'), action = document.getElementById('action-area');
-            action.innerHTML = ''; 
+            const main = document.getElementById('q-main'), hint = document.getElementById('q-hint'), action = document.getElementById('action-area');
+            action.innerHTML = ''; hint.innerText = '';
 
             if (q.type === 'spell') {
                 main.innerHTML = `<button class="opt-btn" onclick="speak('${q.en}')">🔊 聽音朗讀</button>`;
-                document.getElementById('q-hint').innerText = `聽音拼字 (解釋：${q.cn})`; 
-                const input = document.createElement('input'); input.className = 'input-box'; input.placeholder = "請輸入英文生字"; input.style.marginBottom = "15px"; input.style.width = "100%";
+                hint.innerText = `聽音拼字 (解釋：${q.cn})`; 
+                const input = document.createElement('input'); input.className = 'input-box'; input.placeholder = "請輸入英文生字"; input.style.marginBottom = "15px";
                 const sub = document.createElement('button'); sub.className = 'btn-solid'; sub.style.width = "100%"; sub.innerText = "提交回答";
                 sub.onclick = () => checkResult(input.value.trim().toLowerCase() === q.en.toLowerCase(), q.en);
                 action.append(input, sub); setTimeout(() => speak(q.en), 800);
             } else if (q.type === 'choice') {
-                document.getElementById('q-hint').innerText = "選出正確解釋";
-                main.innerText = q.en;
+                main.innerText = q.en; hint.innerText = "選出正確解釋";
                 makeOptions(q.cn, 'cn').forEach(o => {
                     const b = document.createElement('button'); b.className = 'opt-btn'; b.innerText = o;
                     b.onclick = () => checkResult(o === q.cn, q.cn); action.appendChild(b);
                 });
             } else if (q.type === 'cloze') {
-                document.getElementById('q-hint').innerText = "選出合適單字";
-                main.innerText = q.s.replace('______', '( ? )');
+                main.innerText = q.s.replace('______', '( ? )'); hint.innerText = "選出合適單字";
                 makeOptions(q.en, 'en').forEach(o => {
                     const b = document.createElement('button'); b.className = 'opt-btn'; b.innerText = o;
                     b.onclick = () => checkResult(o === q.en, q.en); action.appendChild(b);
@@ -491,8 +472,19 @@
 
         function checkResult(isRight, correct) { 
             if(!canAnswer) return; canAnswer = false; 
+            const m = isDaily ? 'daily' : currentMode;
+            levelProgress[m+'_total'] = (levelProgress[m+'_total'] || 0) + 1;
+
             if(isRight) { 
-                correctCount++; myCoins += (isDaily ? 20 : 1); winSfx.currentTime = 0; winSfx.play(); 
+                correctCount++; myCoins += (isDaily ? 20 : 1); 
+                levelProgress[m+'_correct'] = (levelProgress[m+'_correct'] || 0) + 1;
+
+                // --- 檢查震動開關是否開啟 ---
+                if (vibrateEnabled && navigator.vibrate) {
+                    navigator.vibrate(100); 
+                }
+
+                winSfx.currentTime = 0; winSfx.play();
                 const slash = document.getElementById('slash-layer'); const body = document.body;
                 slash.classList.remove('slash-active'); body.classList.remove('shake-active');
                 void slash.offsetWidth; slash.classList.add('slash-active'); body.classList.add('shake-active');
