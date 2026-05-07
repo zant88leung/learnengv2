@@ -480,8 +480,8 @@
                 levelProgress[m+'_correct'] = (levelProgress[m+'_correct'] || 0) + 1;
 
                 // --- 檢查震動開關是否開啟 ---
-                if (vibrateEnabled && navigator.vibrate) {
-                    navigator.vibrate(100); 
+if (vibrateEnabled && navigator.vibrate) {
+    navigator.vibrate([100, 30, 100]);
                 }
 
                 winSfx.currentTime = 0; winSfx.play();
