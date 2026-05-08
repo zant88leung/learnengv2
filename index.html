@@ -131,6 +131,11 @@
                 <span class="eye-btn" onclick="togglePassword('stu-pwd', this)">👁️</span>
             </div>
             <button id="login-btn" class="btn-init" style="font-size: 1.2rem; padding: 15px; width: 100%;" onclick="handleLogin()">進入修行</button>
+            
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 8px; margin-top: 5px;">
+                <button id="guest-btn" class="btn-solid" style="width: 100%; background: #475569;" onclick="handleGuestLogin()">以訪客身份體驗</button>
+                <span style="font-size: 0.7rem; color: #94a3b8; text-align: center;">注意：所有記錄在登出或重新整理網頁後消失。</span>
+            </div>
         </div>
     </div>
 
@@ -274,6 +279,7 @@
         let currentUserId = "", myCoins = 0, myCollection = [], levelProgress = {}, lastDailyDate = '';
         let currentMode = '', currentLevel = 0, currentIdx = 0, correctCount = 0, gamePool = [], isDaily = false, canAnswer = true;
         let sfxVolume = 0.8, bgmStarted = false, currentCategory = 'wea'; 
+        let isGuest = false;
 
         const vid = document.getElementById('opening-vid'), bgm = document.getElementById('bg_music');
         const winSfx = document.getElementById('win'), loseSfx = document.getElementById('lose');
@@ -299,6 +305,7 @@
                 if (docSnap.exists()) {
                     const userData = docSnap.data();
                     if (userData.password === pwd) {
+                        isGuest = false;
                         const todayStr = new Date().toLocaleDateString('zh-HK');
                         await window.fb_updateDoc(docRef, { lastLoginDate: todayStr });
 
@@ -321,6 +328,17 @@
                     alert("查無此 ID，請聯絡老師。");
                 }
             } catch (e) { alert("連線失敗"); }
+        }
+
+        // 修改：移除 alert，直接進入體驗
+        function handleGuestLogin() {
+            isGuest = true;
+            currentUserId = "guest_" + Date.now();
+            myCoins = 500; 
+            myCollection = [];
+            levelProgress = {};
+            lastDailyDate = '';
+            startCultivation();
         }
 
         async function adminAddStudent() {
@@ -376,6 +394,8 @@
         function goHome() { showPage('home-page'); updateCoinDisplay(); }
         
         async function syncToCloud() { 
+            if (isGuest || !currentUserId) return; 
+
             if (currentUserId) {
                 await window.fb_updateDoc(window.fb_doc(window.fb_db, "students", currentUserId), { 
                     coins: myCoins, collection: myCollection, progress: levelProgress, lastDailyDate: lastDailyDate,
@@ -434,17 +454,15 @@
             currentMode = mode; isDaily = false;
             const container = document.getElementById('level-container'); container.innerHTML = '';
             
-            // --- 更新標題與顏色邏輯 ---
             const titleInfo = {
-                'choice': { text: '真意之殿關卡', color: 'var(--accent)' }, // 靛藍
-                'spell': { text: '迴音之谷關卡', color: 'var(--success)' }, // 翡翠綠
-                'cloze': { text: '萬辭之塔關卡', color: 'var(--gold)' }     // 琥珀金
+                'choice': { text: '真意之殿關卡', color: 'var(--accent)' }, 
+                'spell': { text: '迴音之谷關卡', color: 'var(--success)' }, 
+                'cloze': { text: '萬辭之塔關卡', color: 'var(--gold)' }     
             };
             const header = document.querySelector('#level-page h2');
             const info = titleInfo[mode] || { text: '修行關卡', color: 'var(--gold)' };
             header.innerText = info.text;
             header.style.color = info.color;
-            // ---------------------
 
             const max = Math.ceil(vocab.length / 5);
             for(let i=1; i<=max; i++) {
