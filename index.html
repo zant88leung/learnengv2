@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>英語煉金術 V2.25</title>
+    <title>英語煉金術 V2.27 </title>
     <style>
         /* 核心顏色定義 */
         :root {
@@ -40,6 +40,20 @@
         }
         .slash-active { animation: slash-anim 0.3s ease-out forwards; }
         .shake-active { animation: shake-anim 0.15s ease-in-out 2; }
+
+        /* --- 結算圖 Overlay (尺寸再縮細) --- */
+        #result-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.7); 
+            z-index: 9999; display: none; justify-content: center; 
+            align-items: center; cursor: pointer; backdrop-filter: blur(3px);
+        }
+        #result-img { 
+            max-width: 30%; /* 再次縮細，約佔畫面中心寬度 1/3 */
+            max-height: 30%; 
+            object-fit: contain; 
+            animation: zoomIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+        }
+        @keyframes zoomIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
         #start-overlay { position: fixed; inset: 0; background: #0f172a; z-index: 10001; display: flex; flex-direction: column; justify-content: center; align-items: center; }
         .start-logo { width: 80%; max-width: 400px; margin-bottom: 30px; filter: drop-shadow(0 0 20px var(--accent)); }
@@ -119,6 +133,10 @@
 
     <div id="slash-layer" class="slash-effect"></div>
 
+    <div id="result-overlay" onclick="closeResultImmediately()">
+        <img id="result-img" src="">
+    </div>
+
     <div id="start-overlay">
         <img src="images/title_logo.png" class="start-logo">
         <div class="login-box">
@@ -177,6 +195,7 @@
     <audio id="bg_music" src="audio/bg_music.mp3" loop></audio>
     <audio id="win" src="audio/win.mp3"></audio>
     <audio id="lose" src="audio/lose.mp3"></audio>
+    <audio id="success-sfx" src="audio/success.mp3"></audio>
 
     <div id="home-page" class="page">
         <img src="images/title_logo2.png" class="main-title-img">
@@ -280,9 +299,15 @@
         let currentMode = '', currentLevel = 0, currentIdx = 0, correctCount = 0, gamePool = [], isDaily = false, canAnswer = true;
         let sfxVolume = 0.8, bgmStarted = false, currentCategory = 'wea'; 
         let isGuest = false;
+        let resultTimer = null; 
 
         const vid = document.getElementById('opening-vid'), bgm = document.getElementById('bg_music');
-        const winSfx = document.getElementById('win'), loseSfx = document.getElementById('lose');
+        const winSfx = document.getElementById('win'), loseSfx = document.getElementById('lose'), successSfx = document.getElementById('success-sfx');
+
+        function preloadGameAssets() {
+            const coreIcons = ['images/success01.png', 'images/success02.png'];
+            coreIcons.forEach(src => { const img = new Image(); img.src = src; });
+        }
 
         function togglePassword(inputId, btn) { const input = document.getElementById(inputId); input.type = input.type === 'password' ? 'text' : 'password'; btn.innerText = input.type === 'password' ? '👁️' : '👓'; }
         
@@ -297,47 +322,34 @@
             const id = document.getElementById('stu-id').value.trim();
             const pwd = document.getElementById('stu-pwd').value.trim();
             if (!id || !pwd) return alert("請輸入 ID 與密碼");
-
             try {
                 const docRef = window.fb_doc(window.fb_db, "students", id);
                 const docSnap = await window.fb_getDoc(docRef);
-
                 if (docSnap.exists()) {
                     const userData = docSnap.data();
                     if (userData.password === pwd) {
                         isGuest = false;
                         const todayStr = new Date().toLocaleDateString('zh-HK');
                         await window.fb_updateDoc(docRef, { lastLoginDate: todayStr });
-
                         if (userData.role === "super admin") {
                             document.getElementById('start-overlay').style.display = 'none'; 
                             showPage('admin-page'); 
                             loadAllStudentGrades(); 
                             return;
                         }
-                        currentUserId = id; 
-                        myCoins = userData.coins || 0; 
+                        currentUserId = id; myCoins = userData.coins || 0; 
                         myCollection = userData.collection || [];
                         levelProgress = userData.progress || {}; 
                         lastDailyDate = userData.lastDailyDate || ''; 
                         startCultivation(); 
-                    } else {
-                        alert("密碼錯誤！");
-                    }
-                } else {
-                    alert("查無此 ID，請聯絡老師。");
-                }
+                    } else { alert("密碼錯誤！"); }
+                } else { alert("查無此 ID，請聯絡老師。"); }
             } catch (e) { alert("連線失敗"); }
         }
 
-        // 修改：移除 alert，直接進入體驗
         function handleGuestLogin() {
-            isGuest = true;
-            currentUserId = "guest_" + Date.now();
-            myCoins = 500; 
-            myCollection = [];
-            levelProgress = {};
-            lastDailyDate = '';
+            isGuest = true; currentUserId = "guest_" + Date.now();
+            myCoins = 500; myCollection = []; levelProgress = {}; lastDailyDate = '';
             startCultivation();
         }
 
@@ -387,24 +399,29 @@
             } catch(e) { alert("同步失敗"); }
         }
 
-        function startCultivation() { document.getElementById('start-overlay').style.display = 'none'; document.getElementById('video-opening').style.display = 'flex'; vid.onended = endOpening; vid.play().catch(endOpening); bgmStarted = true; updateAudioSettings(); }
+        function startCultivation() { 
+            document.getElementById('start-overlay').style.display = 'none'; 
+            document.getElementById('video-opening').style.display = 'flex'; 
+            preloadGameAssets(); 
+            vid.onended = endOpening; 
+            vid.play().catch(endOpening); 
+            bgmStarted = true; 
+            updateAudioSettings(); 
+        }
+
         function endOpening() { document.getElementById('video-opening').style.display = 'none'; vid.pause(); showPage('home-page'); updateCoinDisplay(); }
-        
         function showPage(id) { document.querySelectorAll('.page').forEach(p => p.classList.remove('active')); document.getElementById(id).classList.add('active'); }
         function goHome() { showPage('home-page'); updateCoinDisplay(); }
         
         async function syncToCloud() { 
             if (isGuest || !currentUserId) return; 
-
-            if (currentUserId) {
-                await window.fb_updateDoc(window.fb_doc(window.fb_db, "students", currentUserId), { 
-                    coins: myCoins, collection: myCollection, progress: levelProgress, lastDailyDate: lastDailyDate,
-                    choice_total: levelProgress.choice_total || 0, choice_correct: levelProgress.choice_correct || 0,
-                    spell_total: levelProgress.spell_total || 0, spell_correct: levelProgress.spell_correct || 0,
-                    cloze_total: levelProgress.cloze_total || 0, cloze_correct: levelProgress.cloze_correct || 0,
-                    daily_total: levelProgress.daily_total || 0, daily_correct: levelProgress.daily_correct || 0
-                }); 
-            } 
+            await window.fb_updateDoc(window.fb_doc(window.fb_db, "students", currentUserId), { 
+                coins: myCoins, collection: myCollection, progress: levelProgress, lastDailyDate: lastDailyDate,
+                choice_total: levelProgress.choice_total || 0, choice_correct: levelProgress.choice_correct || 0,
+                spell_total: levelProgress.spell_total || 0, spell_correct: levelProgress.spell_correct || 0,
+                cloze_total: levelProgress.cloze_total || 0, cloze_correct: levelProgress.cloze_correct || 0,
+                daily_total: levelProgress.daily_total || 0, daily_correct: levelProgress.daily_correct || 0
+            }); 
         }
 
         function updateCoinDisplay() { document.getElementById('home-coin').innerText = myCoins; if(document.getElementById('shop-coin')) document.getElementById('shop-coin').innerText = myCoins; syncToCloud(); checkDailyStatus(); }
@@ -415,7 +432,7 @@
             const isChecked = document.getElementById('bgm-toggle').checked;
             bgm.volume = document.getElementById('bgm-vol').value; 
             sfxVolume = document.getElementById('sfx-vol').value; 
-            winSfx.volume = sfxVolume; loseSfx.volume = sfxVolume;
+            winSfx.volume = sfxVolume; loseSfx.volume = sfxVolume; successSfx.volume = sfxVolume;
             if (isChecked && bgmStarted) bgm.play().catch(()=>{}); else bgm.pause(); 
         }
 
@@ -453,17 +470,10 @@
         function openLevelSelect(mode) {
             currentMode = mode; isDaily = false;
             const container = document.getElementById('level-container'); container.innerHTML = '';
-            
-            const titleInfo = {
-                'choice': { text: '真意之殿關卡', color: 'var(--accent)' }, 
-                'spell': { text: '迴音之谷關卡', color: 'var(--success)' }, 
-                'cloze': { text: '萬辭之塔關卡', color: 'var(--gold)' }     
-            };
+            const titleInfo = { 'choice': { text: '真意之殿關卡', color: 'var(--accent)' }, 'spell': { text: '迴音之谷關卡', color: 'var(--success)' }, 'cloze': { text: '萬辭之塔關卡', color: 'var(--gold)' } };
             const header = document.querySelector('#level-page h2');
             const info = titleInfo[mode] || { text: '修行關卡', color: 'var(--gold)' };
-            header.innerText = info.text;
-            header.style.color = info.color;
-
+            header.innerText = info.text; header.style.color = info.color;
             const max = Math.ceil(vocab.length / 5);
             for(let i=1; i<=max; i++) {
                 const div = document.createElement('div'); div.className = `level-card ${mode} ${levelProgress[mode+'_'+i] ? 'all-correct' : ''}`;
@@ -484,7 +494,6 @@
             document.getElementById('correct-answer-display').style.display = 'none';
             const main = document.getElementById('q-main'), hint = document.getElementById('q-hint'), action = document.getElementById('action-area');
             action.innerHTML = ''; hint.innerText = '';
-
             if (q.type === 'spell') {
                 main.innerHTML = `<button class="opt-btn" onclick="speak('${q.en}')">🔊 聽音朗讀</button>`;
                 hint.innerText = `聽音拼字 (解釋：${q.cn})`; 
@@ -514,15 +523,10 @@
             if(!canAnswer) return; canAnswer = false; 
             const m = isDaily ? 'daily' : currentMode;
             levelProgress[m+'_total'] = (levelProgress[m+'_total'] || 0) + 1;
-
             if(isRight) { 
                 correctCount++; myCoins += (isDaily ? 20 : 1); 
                 levelProgress[m+'_correct'] = (levelProgress[m+'_correct'] || 0) + 1;
-                
-                if (navigator.vibrate) {
-                    navigator.vibrate(100); 
-                }
-
+                if (navigator.vibrate) { navigator.vibrate(100); }
                 winSfx.currentTime = 0; winSfx.play();
                 const slash = document.getElementById('slash-layer'); const body = document.body;
                 slash.classList.remove('slash-active'); body.classList.remove('shake-active');
@@ -536,7 +540,40 @@
             updateCoinDisplay(); 
         }
 
-        function nextQuestion() { currentIdx++; if(currentIdx < gamePool.length) renderQuestion(); else { if(isDaily) lastDailyDate = new Date().toDateString(); else if(correctCount === gamePool.length) levelProgress[currentMode+'_'+currentLevel] = true; goHome(); } }
+        function nextQuestion() { 
+            currentIdx++; 
+            if(currentIdx < gamePool.length) renderQuestion(); 
+            else showFinalResult();
+        }
+
+        function showFinalResult() {
+            const overlay = document.getElementById('result-overlay');
+            const img = document.getElementById('result-img');
+            const winRatio = correctCount / gamePool.length;
+
+            img.src = (winRatio >= 0.5) ? 'images/success01.png' : 'images/success02.png';
+            overlay.style.display = 'flex';
+            
+            successSfx.currentTime = 0;
+            successSfx.play();
+
+            if(isDaily) {
+                lastDailyDate = new Date().toDateString();
+            } else {
+                if(correctCount === gamePool.length) levelProgress[currentMode+'_'+currentLevel] = true;
+            }
+            updateCoinDisplay();
+
+            // 停留 3 秒自動離開
+            resultTimer = setTimeout(closeResultImmediately, 3000);
+        }
+
+        function closeResultImmediately() {
+            if(resultTimer) clearTimeout(resultTimer);
+            document.getElementById('result-overlay').style.display = 'none';
+            if(isDaily) goHome(); else openLevelSelect(currentMode);
+        }
+
         function makeOptions(c, k) { let r = [c]; while(r.length < 3) { let o = vocab[Math.floor(Math.random()*vocab.length)][k]; if(!r.includes(o)) r.push(o); } return r.sort(()=>0.5-Math.random()); }
         function closeModal() { document.getElementById('sword-modal').style.display = 'none'; }
         function speak(text) { window.speechSynthesis.cancel(); const msg = new SpeechSynthesisUtterance(text); msg.lang = 'en-US'; msg.volume = sfxVolume; window.speechSynthesis.speak(msg); }
