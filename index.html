@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>英語煉金術 V2.27 </title>
+    <title>英語煉金術 V2.30 </title>
     <style>
-        /* 核心顏色定義 */
         :root {
             --bg: #0f172a; --card: rgba(30, 41, 59, 0.8); --accent: #6366f1;
             --gold: #f59e0b; --text: #f8fafc; --success: #22c55e; --error: #ef4444;
@@ -15,13 +14,13 @@
         }
         
         body { 
-            margin: 0; font-family: system-ui, sans-serif; 
-            background: #0f172a url('images/main_bg.png') no-repeat center center fixed; 
+            margin: 0; font-family: system-ui, -apple-system, sans-serif; 
+            background: var(--bg) url('images/main_bg.png') no-repeat center center fixed; 
             background-size: cover; color: var(--text); overflow-x: hidden;
-            transition: transform 0.1s;
         }
 
-        /* --- 斬擊特效 CSS --- */
+        .ui-max-width { width: 100%; max-width: 400px; }
+
         @keyframes slash-anim {
             0% { transform: translate(-100%, -50%) rotate(-20deg); opacity: 0; }
             20% { opacity: 1; }
@@ -33,6 +32,8 @@
             25% { transform: translateX(-8px); }
             75% { transform: translateX(8px); }
         }
+        @keyframes zoomIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
         .slash-effect {
             position: fixed; top: 50%; left: 0; width: 200%; height: 3px; 
             background: white; box-shadow: 0 0 15px #fff, 0 0 5px var(--accent);
@@ -41,233 +42,194 @@
         .slash-active { animation: slash-anim 0.3s ease-out forwards; }
         .shake-active { animation: shake-anim 0.15s ease-in-out 2; }
 
-        /* --- 結算圖 Overlay (尺寸再縮細) --- */
-        #result-overlay {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.7); 
-            z-index: 9999; display: none; justify-content: center; 
-            align-items: center; cursor: pointer; backdrop-filter: blur(3px);
-        }
-        #result-img { 
-            max-width: 50%; 
-            max-height: 50%; 
-            object-fit: contain; 
-            animation: zoomIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-        }
-        @keyframes zoomIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .overlay-base { position: fixed; inset: 0; display: flex; justify-content: center; align-items: center; z-index: 9999; }
+        #result-overlay { background: rgba(0,0,0,0.7); backdrop-filter: blur(3px); cursor: pointer; display: none; }
+        #result-img { max-width: 50%; max-height: 50%; object-fit: contain; animation: zoomIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
 
-        #start-overlay { position: fixed; inset: 0; background: #0f172a; z-index: 10001; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        #start-overlay { background: var(--bg); z-index: 10001; flex-direction: column; }
         .start-logo { width: 80%; max-width: 400px; margin-bottom: 30px; filter: drop-shadow(0 0 20px var(--accent)); }
         
         .login-box { background: rgba(30, 41, 59, 0.9); padding: 30px; border-radius: 20px; border: 1px solid var(--accent); display: flex; flex-direction: column; gap: 15px; width: 85%; max-width: 350px; box-shadow: 0 0 30px rgba(0,0,0,0.5); }
         
-        .input-wrapper { position: relative; width: 100%; display: flex; align-items: center; }
-        .login-input { padding: 15px; border-radius: 10px; border: 1px solid #475569; background: #0f172a; color: white; text-align: center; font-size: 1.1rem; outline: none; width: 100%; box-sizing: border-box; }
-        .eye-btn { position: absolute; right: 12px; cursor: pointer; color: white; font-size: 1.2rem; user-select: none; opacity: 0.8; z-index: 10; }
-        
-        .btn-init { padding: 20px 50px; font-size: 1.5rem; font-weight: bold; color: white; background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%); border: none; border-radius: 50px; cursor: pointer; box-shadow: 0 0 30px rgba(99, 102, 241, 0.5); animation: pulse 2s infinite; }
+        .btn-base { border: none; border-radius: 50px; cursor: pointer; font-weight: bold; transition: all 0.2s; }
+        .btn-init { padding: 20px 50px; font-size: 1.5rem; color: white; background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%); box-shadow: 0 0 30px rgba(99, 102, 241, 0.5); animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
 
-        #video-opening { position: fixed; inset: 0; background: black; z-index: 99; display: none; justify-content: center; align-items: center; }
-        #opening-vid { width: 100%; height: 100%; object-fit: contain; }
-        .skip-btn { position: absolute; bottom: 30px; right: 30px; background: rgba(255, 255, 255, 0.2); color: white; border: 1px solid white; padding: 10px 20px; border-radius: 20px; cursor: pointer; z-index: 10000; }
-
-        @keyframes pulse { 0% { transform: scale(1); opacity: 0.9; } 50% { transform: scale(1.05); opacity: 1; } 100% { transform: scale(1); opacity: 0.9; } }
+        #video-opening { position: fixed; inset: 0; background: black; z-index: 10000; display: none; }
+        .skip-btn { position: absolute; bottom: 30px; right: 30px; background: rgba(255, 255, 255, 0.2); color: white; border: 1px solid white; padding: 10px 20px; border-radius: 20px; cursor: pointer; }
 
         .page { display: none; padding: 20px; flex-direction: column; align-items: center; min-height: 100vh; box-sizing: border-box; }
         .page.active { display: flex; }
 
-        .switch-container { display: flex; align-items: center; justify-content: space-between; font-weight: bold; font-size: 1.2rem; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 15px; }
-        .toggle-switch { position: relative; display: inline-block; width: 100px; height: 44px; }
-        .toggle-switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; inset: 0; background-color: #475569; transition: .4s; border-radius: 44px; border: 2px solid rgba(255,255,255,0.2); }
-        .slider:before { position: absolute; content: "OFF"; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 900; color: white; height: 32px; width: 44px; left: 4px; bottom: 4px; background-color: #1e293b; transition: .4s; border-radius: 40px; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
-        input:checked + .slider { background-color: var(--success); }
-        input:checked + .slider:before { content: "ON"; transform: translateX(44px); background-color: white; color: var(--success); }
-
-        #home-page .main-title-img { width: 100%; max-width: 224px; height: auto; margin: 10px 0; order: 1; transition: max-width 0.3s; }
-        #home-page .header-ui { width: 100%; max-width: 400px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; order: 2; transition: max-width 0.3s; }
-        #home-page .settings-trigger { order: 1; width: 45px; height: 45px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 1px solid rgba(255,255,255,0.3); font-size: 1.5rem; }
-        #home-page .coin-bar { order: 2; background: rgba(0, 0, 0, 0.6); padding: 8px 15px; border-radius: 30px; border: 1px solid var(--gold); color: var(--gold); font-weight: bold; }
-
-        .generic-header { width: 100%; max-width: 400px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; transition: max-width 0.3s; }
-        .menu-container { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 12px; order: 3; transition: max-width 0.3s; }
-        .hero-btn { width: 100%; height: 72px; font-size: 1.25rem; font-weight: 800; border: none; color: white; cursor: pointer; background-color: transparent; background-repeat: no-repeat; background-position: center; background-size: contain; display: flex; align-items: center; justify-content: center; gap: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.7); transition: transform 0.2s; }
+        .header-ui { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .coin-bar { background: rgba(0, 0, 0, 0.6); padding: 8px 15px; border-radius: 30px; border: 1px solid var(--gold); color: var(--gold); font-weight: bold; }
         
+        .hero-btn { width: 100%; height: 72px; font-size: 1.25rem; font-weight: 800; color: white; cursor: pointer; background: transparent no-repeat center / contain; display: flex; align-items: center; justify-content: center; gap: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.7); margin-bottom: 12px; border: none; }
         .btn-1 { background-image: url('images/btn_icon_1.png'); }
         .btn-2 { background-image: url('images/btn_icon_2.png'); }
         .btn-3 { background-image: url('images/btn_icon_3.png'); }
         .btn-4 { background-image: url('images/btn_icon_4.png'); }
         .btn-5 { background-image: url('images/btn_icon_5.png'); }
 
-        .category-nav { display: flex; gap: 10px; width: 100%; max-width: 400px; margin-bottom: 15px; }
-        .cat-btn { flex: 1; padding: 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2); color: #cbd5e1; font-weight: bold; cursor: pointer; transition: all 0.3s; }
+        .category-nav { display: flex; gap: 10px; margin-bottom: 15px; }
+        .cat-btn { flex: 1; padding: 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2); color: #cbd5e1; font-weight: bold; cursor: pointer; }
         .cat-btn-wea { background: var(--btn-wea); }
-        .cat-btn-wea.active { background: var(--btn-wea-active); border-color: white; color: white; }
         .cat-btn-pet { background: var(--btn-pet); }
-        .cat-btn-pet.active { background: var(--btn-pet-active); border-color: white; color: white; }
+        .cat-btn.active { border-color: white; color: white; }
+        .cat-btn-wea.active { background: var(--btn-wea-active); }
+        .cat-btn-pet.active { background: var(--btn-pet-active); }
 
-        .inventory { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; width: 100%; max-width: 400px; }
-        .inv-slot { background: var(--card); aspect-ratio: 1; border-radius: 24px; border: 3px solid var(--gold); display: flex; align-items: center; justify-content: center; cursor: pointer; }
-        .inv-slot img { width: 80%; height: 80%; object-fit: contain; }
+        .inventory, .shop-grid { display: grid; gap: 15px; width: 100%; max-width: 400px; }
+        .inventory { grid-template-columns: repeat(3, 1fr); }
+        .shop-grid { grid-template-columns: repeat(4, 1fr); }
 
-        .shop-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; width: 100%; max-width: 400px; }
-        .shop-item { background: var(--card); aspect-ratio: 1; border-radius: 12px; border: 1px solid #475569; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; overflow: hidden; position: relative; }
-        .shop-item img { width: 140%; height: 140%; object-fit: contain; position: absolute; top: -20%; left: -20%; }
-        .shop-price-tag { position: absolute; bottom: 0; width: 100%; background: rgba(0, 0, 0, 0.7); padding: 4px 0; text-align: center; color: var(--gold); font-size: 0.8rem; font-weight: 900; z-index: 2; }
+        .inv-slot, .shop-item { background: var(--card); aspect-ratio: 1; border-radius: 15px; border: 2px solid var(--gold); display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; overflow: hidden; }
+        .inv-slot img, .shop-item img { width: 90%; height: 90%; object-fit: contain; transition: filter 0.3s, transform 0.3s; }
         
-        .level-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; width: 100%; max-width: 400px; margin-top: 20px; }
-        .level-card { background: var(--card); aspect-ratio: 1; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; border: 3px solid var(--accent); cursor: pointer; position: relative; }
-        
-        .level-card.choice { border-color: var(--accent); }
-        .level-card.spell { border-color: #10b981; }
-        .level-card.cloze { border-color: #f59e0b; }
+        .shop-item.locked img { filter: brightness(0); opacity: 0.7; }
+        .shop-item.owned img { filter: none; opacity: 0.4; }
+        .shop-price-tag { position: absolute; bottom: 0; width: 100%; background: rgba(0, 0, 0, 0.7); font-size: 0.7rem; color: var(--gold); text-align: center; padding: 2px 0; z-index: 2; }
 
-        .level-card.all-correct::after { content: '✔️'; position: absolute; top: -5px; right: -5px; background: var(--success); border-radius: 50%; font-size: 0.8rem; padding: 2px; }
-        .q-card { background: var(--card); padding: 30px; border-radius: 24px; width: 100%; max-width: 400px; text-align: center; margin: 20px 0; border: 2px solid transparent; backdrop-filter: blur(10px); box-sizing: border-box; }
+        .level-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 20px; }
+        .level-card { 
+            background: var(--card); aspect-ratio: 1; border-radius: 50%; 
+            display: flex; align-items: center; justify-content: center; 
+            font-size: 1.3rem; border: 3px solid; cursor: pointer; position: relative; 
+            color: white !important; font-weight: bold;
+        }
+        .level-card.choice { border-color: var(--accent); } 
+        .level-card.spell { border-color: var(--gold); }     
+        .level-card.cloze { border-color: var(--pink); }     
+        
+        .level-card.all-correct::after { content: '✔️'; position: absolute; top: -5px; right: -5px; background: var(--success); border-radius: 50%; font-size: 0.8rem; padding: 2px; color: white; border: 1px solid white; }
+
+        .q-card { background: var(--card); padding: 30px; border-radius: 24px; text-align: center; margin: 20px 0; border: 2px solid transparent; backdrop-filter: blur(10px); }
         .btn-solid { background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%); border-radius: 15px; padding: 12px 20px; color: white; border: none; font-weight: bold; cursor: pointer; }
         .opt-btn { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 18px; border-radius: 15px; width: 100%; margin-bottom: 10px; cursor: pointer; font-size: 1.1rem; }
-        .input-box { background: rgba(15, 23, 42, 0.8); border: 2px solid var(--accent); color: white; padding: 15px; width: 100%; border-radius: 10px; text-align: center; font-size: 1.2rem; outline: none; box-sizing: border-box; }
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 2000; justify-content: center; align-items: center; flex-direction: column; }
+        
+        .mute-toggle-btn { width: 100%; padding: 15px; margin-bottom: 20px; border-radius: 12px; border: 2px solid var(--accent); background: rgba(99, 102, 241, 0.2); color: white; font-weight: bold; font-size: 1.1rem; cursor: pointer; transition: 0.3s; }
+        .mute-toggle-btn.is-muted { border-color: var(--error); background: rgba(239, 68, 68, 0.2); color: var(--error); }
     </style>
 </head>
 <body>
 
     <div id="slash-layer" class="slash-effect"></div>
 
-    <div id="result-overlay" onclick="closeResultImmediately()">
+    <div id="result-overlay" class="overlay-base" onclick="closeResultImmediately()">
         <img id="result-img" src="">
     </div>
 
-    <div id="start-overlay">
+    <div id="start-overlay" class="overlay-base">
         <img src="images/title_logo.png" class="start-logo">
         <div class="login-box">
-            <h3 style="text-align:center; margin:0; color:var(--gold);">修行者報到</h3>
-            <div class="input-wrapper">
-                <input type="text" id="stu-id" class="login-input" placeholder="學生編號ID">
-            </div>
-            <div class="input-wrapper">
-                <input type="password" id="stu-pwd" class="login-input" placeholder="密碼Password">
-                <span class="eye-btn" onclick="togglePassword('stu-pwd', this)">👁️</span>
-            </div>
-            <button id="login-btn" class="btn-init" style="font-size: 1.2rem; padding: 15px; width: 100%;" onclick="handleLogin()">進入修行</button>
-            
-            <div style="display: flex; flex-direction: column; align-items: center; gap: 8px; margin-top: 5px;">
-                <button id="guest-btn" class="btn-solid" style="width: 100%; background: #475569;" onclick="handleGuestLogin()">以訪客身份體驗</button>
-                <span style="font-size: 0.7rem; color: #94a3b8; text-align: center;">注意：所有記錄在登出或重新整理網頁後消失。</span>
-            </div>
+            <h3 style="text-align:center; margin:0 0 10px 0; color:var(--gold);">歡迎來到煉金術世界</h3>
+            <button class="btn-base btn-init" onclick="handleGuestLogin()">進入修行</button>
+            <p style="text-align:center; font-size:0.8rem; color:#94a3b8; margin:0;">以訪客身份開始體驗</p>
         </div>
     </div>
 
     <div id="admin-page" class="page">
-        <div class="generic-header">
-            <h2 style="color:var(--gold)">📜 老師管理後台</h2>
-            <button class="btn-solid" onclick="location.reload()">登出系統</button>
-        </div>
-        <div id="admin-display-area" style="width:100%; max-width:400px; margin-bottom:25px; overflow-y:auto; max-height:300px; background:var(--card); border-radius:15px; border: 1px solid rgba(255,255,255,0.1);"></div>
-        
-        <div style="background:var(--card); padding:20px; border-radius:15px; width:100%; max-width:400px; margin-bottom:20px; border: 1px solid var(--success);">
-            <h3 style="margin-top:0; color:var(--success); font-size:1.1rem;">🌟 錄入新學生</h3>
-            <div style="display:flex; flex-direction:column; gap:12px;">
-                <input type="text" id="add-id" class="login-input" placeholder="新學生學號">
-                <div class="input-wrapper">
-                    <input type="password" id="add-pwd" class="login-input" placeholder="設定初始密碼">
-                    <span class="eye-btn" onclick="togglePassword('add-pwd', this)">👁️</span>
-                </div>
-                <button class="btn-solid" style="width:100%; background: var(--success);" onclick="adminAddStudent()">正式錄入名冊</button>
+        <div class="ui-max-width">
+            <div class="header-ui">
+                <h2 style="color:var(--gold)">📜 管理後台</h2>
+                <button class="btn-solid" onclick="location.reload()">登出</button>
             </div>
-        </div>
-
-        <div style="width:100%; max-width:400px; border-top:1px solid #334155; padding-top:20px; opacity:0.8;">
-            <p style="font-size:0.75rem; color:#94a3b8; margin-bottom:8px; text-align:center;">⚠️ 守則：此區域僅供系統工作人員使用。</p>
-            <details style="text-align:center;">
-                <summary style="font-size:0.8rem; cursor:pointer; color:#64748b; margin-bottom:10px;">展開系統數據工具</summary>
-                <div style="background:var(--card); padding:15px; border-radius:10px;">
-                    <button class="btn-solid" style="width:100%; font-size:0.8rem; background:#475569;" onclick="syncVocabToCloud()">將本地題目同步至雲端 (批量)</button>
-                </div>
-            </details>
+            <div id="admin-display-area" style="background:var(--card); border-radius:15px; height:300px; overflow-y:auto; margin-bottom:20px;"></div>
+            
+            <div style="background:var(--card); padding:20px; border-radius:15px; border: 1px solid var(--success);">
+                <h3 style="color:var(--success); margin-top:0;">錄入新學生</h3>
+                <input type="text" id="add-id" class="login-input" placeholder="學號" style="width:100%; padding:10px; margin-bottom:10px; box-sizing:border-box;">
+                <input type="password" id="add-pwd" class="login-input" placeholder="密碼" style="width:100%; padding:10px; margin-bottom:10px; box-sizing:border-box;">
+                <button class="btn-solid" style="width:100%; background:var(--success);" onclick="adminAddStudent()">確認錄入</button>
+            </div>
         </div>
     </div>
 
-    <div id="video-opening">
-        <video id="opening-vid" playsinline><source src="video/opening.mp4" type="video/mp4"></video>
+    <div id="video-opening" class="overlay-base">
+        <video id="opening-vid" style="width:100%; height:100%; object-fit:contain;" playsinline>
+            <source src="video/opening.mp4" type="video/mp4">
+        </video>
         <button class="skip-btn" onclick="endOpening()">跳過 Skip</button>
     </div>
 
-    <audio id="bg_music" src="audio/bg_music.mp3" loop></audio>
-    <audio id="win" src="audio/win.mp3"></audio>
-    <audio id="lose" src="audio/lose.mp3"></audio>
-    <audio id="success-sfx" src="audio/success.mp3"></audio>
-
     <div id="home-page" class="page">
-        <img src="images/title_logo2.png" class="main-title-img">
-        <div class="header-ui">
-            <div class="settings-trigger" onclick="toggleSettings(true)">⚙️</div>
+        <img src="images/title_logo2.png" style="width:100%; max-width:224px; margin:10px 0;">
+        <div class="header-ui ui-max-width">
+            <div onclick="toggleSettings(true)" style="cursor:pointer; font-size:1.5rem;">⚙️</div>
             <div class="coin-bar">💰 <span id="home-coin">0</span></div>
         </div>
-        <div class="menu-container">
-            <button class="hero-btn btn-1" onclick="openLevelSelect('choice')"><img src="images/icon01.png" style="height:40px;"> 真意之殿</button>
-            <button class="hero-btn btn-2" onclick="openLevelSelect('spell')"><img src="images/icon02.png" style="height:40px;"> 迴音之谷</button>
-            <button class="hero-btn btn-3" onclick="openLevelSelect('cloze')"><img src="images/icon03.png" style="height:40px;"> 萬辭之塔</button>
-            <button id="daily-btn" class="hero-btn btn-4" onclick="startDaily()"><img src="images/icon04.png" style="height:40px;"> <span id="daily-text">每日挑戰</span></button>
-            <button class="hero-btn btn-5" onclick="showInv()"><img src="images/icon05.png" style="height:40px;"> 藏寶閣</button>
+        <div class="ui-max-width">
+            <button class="hero-btn btn-1" onclick="openLevelSelect('choice')">真意之殿</button>
+            <button class="hero-btn btn-2" onclick="openLevelSelect('spell')">迴音之谷</button>
+            <button class="hero-btn btn-3" onclick="openLevelSelect('cloze')">萬辭之塔</button>
+            <button id="daily-btn" class="hero-btn btn-4" onclick="startDaily()">每日挑戰</button>
+            <button class="hero-btn btn-5" onclick="showInv()">藏寶閣</button>
         </div>
     </div>
 
-    <div id="settings-modal" class="modal">
-        <div style="background:var(--card); padding:30px; border-radius:20px; border:1px solid var(--accent); width:85%; max-width:350px;">
-            <h2 style="text-align:center; color:var(--gold);">系統設定</h2>
-            <div style="display:flex; flex-direction:column; gap:25px;">
-                <div>背景音樂：<input type="range" id="bgm-vol" min="0" max="1" step="0.1" value="0.5" onchange="updateAudioSettings()" style="width:100%;"></div>
-                <div>音效大小：<input type="range" id="sfx-vol" min="0" max="1" step="0.1" value="0.8" onchange="updateAudioSettings()" style="width:100%;"></div>
-                <div class="switch-container">音樂及音效 <label class="toggle-switch"><input type="checkbox" id="bgm-toggle" checked onchange="updateAudioSettings()"><span class="slider"></span></label></div>
-                <button class="btn-solid" onclick="toggleSettings(false)">確定並返回</button>
+    <div id="game-page" class="page">
+        <div id="game-progress-tag" class="coin-bar" style="margin-top:10px;">0 / 0</div>
+        <div class="ui-max-width">
+            <div class="q-card" id="q-card-box">
+                <div id="q-main" style="font-weight: bold; font-size: 1.5rem; margin-bottom: 10px;"></div>
+                <div id="q-hint" style="color: var(--gold); font-weight: bold;"></div>
+                <div id="correct-answer-display" style="color: #fb7185; margin-top: 15px; display: none; font-size: 1.4rem; font-weight: bold;"></div>
             </div>
+            <div id="action-area"></div>
+            <button id="next-btn" class="btn-solid" style="display: none; width:100%; margin-top:10px;" onclick="nextQuestion()">下一題</button>
+            <button onclick="goHome()" style="background:none; border:none; color:#cbd5e1; width:100%; margin-top:20px;">結束修行</button>
         </div>
     </div>
 
     <div id="inv-page" class="page">
-        <div class="generic-header"><button class="btn-solid" onclick="goHome()">返回</button><button class="btn-solid" style="background:var(--pink)" onclick="showShop()">商店 🛒</button></div>
-        <h2 style="color:var(--gold)">🏆 我的收藏</h2>
-        <div class="category-nav">
+        <div class="header-ui ui-max-width">
+            <button class="btn-solid" onclick="goHome()">返回</button>
+            <button class="btn-solid" style="background:var(--pink)" onclick="showShop()">商店 🛒</button>
+        </div>
+        <div class="category-nav ui-max-width">
             <button id="inv-wea-btn" class="cat-btn cat-btn-wea" onclick="setCategory('inv','wea')">⚔️ 神兵</button>
             <button id="inv-pet-btn" class="cat-btn cat-btn-pet" onclick="setCategory('inv','pet')">🐾 靈寵</button>
         </div>
-        <div class="inventory" id="inv-grid"></div>
+        <div class="inventory ui-max-width" id="inv-grid"></div>
     </div>
 
     <div id="shop-page" class="page">
-        <div class="generic-header"><div class="coin-bar" style="background: rgba(0, 0, 0, 0.6); padding: 8px 15px; border-radius: 30px; border: 1px solid var(--gold); color: var(--gold); font-weight: bold;">💰 <span id="shop-coin">0</span></div><button class="btn-solid" onclick="showInv()">返回</button></div>
-        <h2 style="color:var(--pink)">✨ 修煉商店</h2>
-        <div class="category-nav">
+        <div class="header-ui ui-max-width">
+            <div class="coin-bar">💰 <span id="shop-coin">0</span></div>
+            <button class="btn-solid" onclick="showInv()">返回</button>
+        </div>
+        <div class="category-nav ui-max-width">
             <button id="shop-wea-btn" class="cat-btn cat-btn-wea" onclick="setCategory('shop','wea')">⚔️ 神兵</button>
             <button id="shop-pet-btn" class="cat-btn cat-btn-pet" onclick="setCategory('shop','pet')">🐾 靈寵</button>
         </div>
-        <div class="shop-grid" id="shop-grid"></div>
+        <div class="shop-grid ui-max-width" id="shop-grid"></div>
     </div>
 
     <div id="level-page" class="page">
-        <h2 style="color:var(--gold); margin-bottom: 5px;">修行關卡</h2>
-        <div class="level-grid" id="level-container"></div>
-        <button class="btn-solid" onclick="goHome()" style="margin-top: 40px; width: 150px;">返回主頁</button>
+        <h2 id="level-title" style="color:var(--gold);">修行關卡</h2>
+        <div class="level-grid ui-max-width" id="level-container"></div>
+        <button class="btn-solid" onclick="goHome()" style="margin-top:40px;">返回主頁</button>
     </div>
 
-    <div id="game-page" class="page">
-        <div id="game-progress-tag" style="background:rgba(255,255,255,0.1); padding:5px 15px; border-radius:20px; font-weight:bold; color:var(--gold); margin-top:10px;">0 / 0</div>
-        
-        <div id="progress-text" style="color: var(--gold); font-weight: bold; margin-top:5px;"></div>
-        <div class="q-card" id="q-card-box">
-            <div id="q-main" style="font-weight: bold; font-size: 1.5rem; margin-bottom: 10px;"></div>
-            <div id="q-hint" style="color: var(--gold); font-weight: bold; font-size: 1.2rem; margin-bottom: 10px;"></div>
-            <div id="correct-answer-display" style="color: #fb7185; margin-top: 15px; display: none; font-weight: bold; font-size: 1.4rem;"></div>
+    <div id="settings-modal" class="modal">
+        <div style="background:var(--card); padding:30px; border-radius:20px; width:80%; max-width:300px;">
+            <h3 style="text-align:center; color:var(--gold);">系統設定</h3>
+            <button id="master-mute-btn" class="mute-toggle-btn" onclick="toggleMasterMute()">🔊 聲音：開啟中</button>
+            <p>背景音樂：<input type="range" id="bgm-vol" min="0" max="1" step="0.1" value="0.5" onchange="updateAudio()"></p>
+            <p>音效大小：<input type="range" id="sfx-vol" min="0" max="1" step="0.1" value="0.8" onchange="updateAudio()"></p>
+            <button class="btn-solid" style="width:100%; margin-top:10px;" onclick="toggleSettings(false)">確定</button>
         </div>
-        <div id="action-area" style="width: 100%; max-width: 400px; display: flex; flex-direction: column;"></div>
-        <button id="next-btn" class="btn-solid" style="display: none; margin-top:10px;" onclick="nextQuestion()">下一題</button>
-        <button onclick="goHome()" style="background:none; border:none; color:#cbd5e1; margin-top: 20px;">結束修行</button>
     </div>
 
-    <div id="sword-modal" class="modal" onclick="closeModal()">
-        <div id="modal-text" style="color: var(--gold); font-size: 1.8rem;"></div>
+    <div id="sword-modal" class="modal" onclick="this.style.display='none'">
         <img id="weapon-display" style="max-width:80%;" src="">
     </div>
+
+    <audio id="bg_music" src="audio/bg_music.mp3" loop></audio>
+    <audio id="win-sfx" src="audio/win.mp3"></audio>
+    <audio id="lose-sfx" src="audio/lose.mp3"></audio>
+    <audio id="success-sfx" src="audio/success.mp3"></audio>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
@@ -276,307 +238,313 @@
         const firebaseConfig = { 
             apiKey: "AIzaSyBl9Z3Y1X2W3V4U5T6S7R8Q9P0O", 
             authDomain: "learn-english-ab8f8.firebaseapp.com", 
-            projectId: "learn-english-ab8f8", 
-            storageBucket: "learn-english-ab8f8.appspot.com", 
-            messagingSenderId: "123456789012", 
-            appId: "1:123456789012:web:abcdef..." 
+            projectId: "learn-english-ab8f8"
         };
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        window.fb_db = db; window.fb_doc = doc; window.fb_getDoc = getDoc;
-        window.fb_setDoc = setDoc; window.fb_updateDoc = updateDoc;
-        window.fb_collection = collection; window.fb_getDocs = getDocs;
-        window.fb_writeBatch = writeBatch;
-        
-        loadQuestionsFromCloud();
+        window.fb = { db, doc, getDoc, setDoc, updateDoc, collection, getDocs, writeBatch };
+        initGameData();
     </script>
 
     <script>
-        let vocab = []; 
-        let currentUserId = "", myCoins = 0, myCollection = [], levelProgress = {}, lastDailyDate = '';
-        let currentMode = '', currentLevel = 0, currentIdx = 0, correctCount = 0, gamePool = [], isDaily = false, canAnswer = true;
-        let sfxVolume = 0.8, bgmStarted = false, currentCategory = 'wea'; 
-        let isGuest = false;
-        let resultTimer = null; 
+        const state = {
+            user: { id: "", coins: 0, collection: [], progress: {}, lastDaily: "", isGuest: false },
+            vocab: [],
+            game: { mode: "", level: 0, idx: 0, correct: 0, pool: [], canAnswer: true },
+            ui: { category: "wea", sfxVol: 0.8, isMuted: false, lastBgmVol: 0.5, lastSfxVol: 0.8 }
+        };
 
-        const vid = document.getElementById('opening-vid'), bgm = document.getElementById('bg_music');
-        const winSfx = document.getElementById('win'), loseSfx = document.getElementById('lose'), successSfx = document.getElementById('success-sfx');
+        const $ = id => document.getElementById(id);
 
-        function preloadGameAssets() {
-            const coreIcons = ['images/success01.png', 'images/success02.png'];
-            coreIcons.forEach(src => { const img = new Image(); img.src = src; });
-        }
-
-        function togglePassword(inputId, btn) { const input = document.getElementById(inputId); input.type = input.type === 'password' ? 'text' : 'password'; btn.innerText = input.type === 'password' ? '👁️' : '👓'; }
-        
-        async function loadQuestionsFromCloud() { 
-            try { 
-                const snap = await window.fb_getDocs(window.fb_collection(window.fb_db, "questions")); 
-                if(!snap.empty) { vocab = []; snap.forEach(doc => vocab.push(doc.data())); } 
-            } catch(e) {} 
-        }
-
-        async function handleLogin() {
-            const id = document.getElementById('stu-id').value.trim();
-            const pwd = document.getElementById('stu-pwd').value.trim();
-            if (!id || !pwd) return alert("請輸入 ID 與密碼");
+        async function initGameData() {
             try {
-                const docRef = window.fb_doc(window.fb_db, "students", id);
-                const docSnap = await window.fb_getDoc(docRef);
-                if (docSnap.exists()) {
-                    const userData = docSnap.data();
-                    if (userData.password === pwd) {
-                        isGuest = false;
-                        const todayStr = new Date().toLocaleDateString('zh-HK');
-                        await window.fb_updateDoc(docRef, { lastLoginDate: todayStr });
-                        if (userData.role === "super admin") {
-                            document.getElementById('start-overlay').style.display = 'none'; 
-                            showPage('admin-page'); 
-                            loadAllStudentGrades(); 
-                            return;
-                        }
-                        currentUserId = id; myCoins = userData.coins || 0; 
-                        myCollection = userData.collection || [];
-                        levelProgress = userData.progress || {}; 
-                        lastDailyDate = userData.lastDailyDate || ''; 
-                        startCultivation(); 
-                    } else { alert("密碼錯誤！"); }
-                } else { alert("查無此 ID，請聯絡老師。"); }
-            } catch (e) { alert("連線失敗"); }
+                const snap = await fb.getDocs(fb.collection(fb.db, "questions"));
+                state.vocab = snap.docs.map(d => d.data());
+            } catch(e) { console.error("加載題目失敗"); }
         }
 
+        function showPage(id) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            $(id).classList.add('active');
+            if(['home-page', 'shop-page', 'inv-page'].includes(id)) updateCoinDisplay();
+        }
+
+        // 雖然登入框移除了，但保留此邏輯以防 admin 頁面或其他地方調用
         function handleGuestLogin() {
-            isGuest = true; currentUserId = "guest_" + Date.now();
-            myCoins = 500; myCollection = []; levelProgress = {}; lastDailyDate = '';
+            state.user = { id: "guest", coins: 500, collection: [], progress: {}, lastDaily: "", isGuest: true };
             startCultivation();
         }
 
-        async function adminAddStudent() {
-            const addId = document.getElementById('add-id').value.trim();
-            const addPwd = document.getElementById('add-pwd').value.trim();
-            if (!addId || !addPwd) return alert("請填寫完整學號及密碼");
-            try {
-                await window.fb_setDoc(window.fb_doc(window.fb_db, "students", addId), { 
-                    password: addPwd, coins: 0, progress: {}, collection: [], lastDailyDate: '', role: "student" 
-                });
-                alert(`錄入成功：${addId}`); loadAllStudentGrades();
-            } catch (e) { alert("錄入失敗"); }
+        function startCultivation() {
+            $('start-overlay').style.display = 'none';
+            $('video-opening').style.display = 'flex';
+            const vid = $('opening-vid');
+            vid.play().catch(endOpening);
+            vid.onended = endOpening;
+            $('bg_music').play().catch(()=>{});
         }
 
-        async function loadAllStudentGrades() {
-            const area = document.getElementById('admin-display-area'); 
-            area.innerHTML = "<div style='padding:20px; text-align:center;'>數據加載中...</div>";
-            try {
-                const snap = await window.fb_getDocs(window.fb_collection(window.fb_db, "students"));
-                let html = '<div style="overflow-x:auto;"><table style="width:100%; border-collapse:collapse; font-size:0.8rem; min-width:600px;">';
-                html += `<tr style="background:#334155; color:var(--gold);">
-                            <th style="padding:10px;">學號</th><th>💰金幣</th><th>真意(選)</th><th>迴音(拼)</th><th>萬辭(填)</th><th>每日</th><th>最後登入</th>
-                         </tr>`;
-                snap.forEach(doc => {
-                    const d = doc.data(); 
-                    if (d.role !== "super admin") {
-                        const stat = (m) => `${d[m+'_correct'] || 0}/${d[m+'_total'] || 0}`;
-                        html += `<tr style="border-bottom:1px solid #334155; text-align:center;">
-                                    <td style="padding:10px; font-weight:bold;">${doc.id}</td>
-                                    <td>${d.coins || 0}</td>
-                                    <td>${stat('choice')}</td><td>${stat('spell')}</td><td>${stat('cloze')}</td><td>${stat('daily')}</td>
-                                    <td style="font-size:0.7rem; color:#94a3b8;">${d.lastLoginDate || '---'}</td>
-                                 </tr>`;
-                    }
-                });
-                area.innerHTML = html + '</table></div>';
-            } catch (e) { area.innerHTML = "加載失敗"; }
+        function endOpening() {
+            $('video-opening').style.display = 'none';
+            $('opening-vid').pause();
+            showPage('home-page');
         }
 
-        async function syncVocabToCloud() {
-            if(!vocab.length) return alert("無資料同步");
-            try {
-                const batch = window.fb_writeBatch(window.fb_db);
-                vocab.forEach(v => batch.set(window.fb_doc(window.fb_collection(window.fb_db, "questions"), v.en), v));
-                await batch.commit(); alert("同步完成！");
-            } catch(e) { alert("同步失敗"); }
+        function setCategory(page, cat) {
+            state.ui.category = cat;
+            page === 'inv' ? showInv() : showShop();
         }
-
-        function startCultivation() { 
-            document.getElementById('start-overlay').style.display = 'none'; 
-            document.getElementById('video-opening').style.display = 'flex'; 
-            preloadGameAssets(); 
-            vid.onended = endOpening; 
-            vid.play().catch(endOpening); 
-            bgmStarted = true; 
-            updateAudioSettings(); 
-        }
-
-        function endOpening() { document.getElementById('video-opening').style.display = 'none'; vid.pause(); showPage('home-page'); updateCoinDisplay(); }
-        function showPage(id) { document.querySelectorAll('.page').forEach(p => p.classList.remove('active')); document.getElementById(id).classList.add('active'); }
-        function goHome() { showPage('home-page'); updateCoinDisplay(); }
-        
-        async function syncToCloud() { 
-            if (isGuest || !currentUserId) return; 
-            await window.fb_updateDoc(window.fb_doc(window.fb_db, "students", currentUserId), { 
-                coins: myCoins, collection: myCollection, progress: levelProgress, lastDailyDate: lastDailyDate,
-                choice_total: levelProgress.choice_total || 0, choice_correct: levelProgress.choice_correct || 0,
-                spell_total: levelProgress.spell_total || 0, spell_correct: levelProgress.spell_correct || 0,
-                cloze_total: levelProgress.cloze_total || 0, cloze_correct: levelProgress.cloze_correct || 0,
-                daily_total: levelProgress.daily_total || 0, daily_correct: levelProgress.daily_correct || 0
-            }); 
-        }
-
-        function updateCoinDisplay() { document.getElementById('home-coin').innerText = myCoins; if(document.getElementById('shop-coin')) document.getElementById('shop-coin').innerText = myCoins; syncToCloud(); checkDailyStatus(); }
-        function checkDailyStatus() { const today = new Date().toDateString(); document.getElementById('daily-btn').disabled = (lastDailyDate === today); document.getElementById('daily-text').innerText = (lastDailyDate === today ? "明日再戰" : "每日挑戰"); }
-        
-        function toggleSettings(show) { document.getElementById('settings-modal').style.display = show ? 'flex' : 'none'; }
-        function updateAudioSettings() { 
-            const isChecked = document.getElementById('bgm-toggle').checked;
-            bgm.volume = document.getElementById('bgm-vol').value; 
-            sfxVolume = document.getElementById('sfx-vol').value; 
-            winSfx.volume = sfxVolume; loseSfx.volume = sfxVolume; successSfx.volume = sfxVolume;
-            if (isChecked && bgmStarted) bgm.play().catch(()=>{}); else bgm.pause(); 
-        }
-
-        function setCategory(page, cat) { currentCategory = cat; page === 'inv' ? showInv() : showShop(); }
 
         function showInv() {
-            document.getElementById('inv-wea-btn').className = `cat-btn cat-btn-wea ${currentCategory==='wea'?'active':''}`;
-            document.getElementById('inv-pet-btn').className = `cat-btn cat-btn-pet ${currentCategory==='pet'?'active':''}`;
-            const grid = document.getElementById('inv-grid'); grid.innerHTML = '';
-            myCollection.filter(n => n.startsWith(currentCategory)).forEach(img => {
-                const slot = document.createElement('div'); slot.className = 'inv-slot';
-                slot.innerHTML = `<img src="images/${img}" onerror="this.src='images/icon05.png'">`;
-                slot.onclick = () => { document.getElementById('weapon-display').src = `images/${img}`; document.getElementById('sword-modal').style.display = 'flex'; };
-                grid.appendChild(slot);
+            $('inv-wea-btn').classList.toggle('active', state.ui.category === 'wea');
+            $('inv-pet-btn').classList.toggle('active', state.ui.category === 'pet');
+            const grid = $('inv-grid');
+            grid.innerHTML = '';
+            state.user.collection.filter(n => n.startsWith(state.ui.category)).forEach(img => {
+                const div = document.createElement('div');
+                div.className = 'inv-slot';
+                div.innerHTML = `<img src="images/${img}" onerror="this.src='images/icon05.png'">`;
+                div.onclick = () => { $('weapon-display').src = `images/${img}`; $('sword-modal').style.display = 'flex'; };
+                grid.appendChild(div);
             });
             showPage('inv-page');
         }
 
         function showShop() {
-            document.getElementById('shop-wea-btn').className = `cat-btn cat-btn-wea ${currentCategory==='wea'?'active':''}`;
-            document.getElementById('shop-pet-btn').className = `cat-btn cat-btn-pet ${currentCategory==='pet'?'active':''}`;
-            const grid = document.getElementById('shop-grid'); grid.innerHTML = '';
-            for(let i=1; i<=50; i++) {
-                let imgName = `${currentCategory}_${i.toString().padStart(3,'0')}.png`; 
-                let owned = myCollection.includes(imgName);
-                const div = document.createElement('div'); div.className = 'shop-item'; div.style.display = 'none'; 
-                div.innerHTML = `<img src="images/${imgName}" onload="this.parentElement.style.display='flex';" onerror="this.parentElement.remove();"><div class="shop-price-tag">${owned ? '已擁有' : '💰 '+(i*100)}</div>`;
-                if (owned) div.style.opacity = '0.4';
-                div.onclick = () => { if(!owned && myCoins >= i*100) { myCoins -= i*100; myCollection.push(imgName); updateCoinDisplay(); showShop(); } };
+            $('shop-wea-btn').classList.toggle('active', state.ui.category === 'wea');
+            $('shop-pet-btn').classList.toggle('active', state.ui.category === 'pet');
+            const grid = $('shop-grid');
+            grid.innerHTML = '';
+            for(let i=1; i<=20; i++) {
+                const imgName = `${state.ui.category}_${String(i).padStart(3,'0')}.png`;
+                const owned = state.user.collection.includes(imgName);
+                const div = document.createElement('div');
+                div.className = `shop-item ${owned ? 'owned' : 'locked'}`;
+                div.innerHTML = `<img src="images/${imgName}" onerror="this.parentElement.style.display='none'"><div class="shop-price-tag">${owned ? '已持有' : '💰 '+(i*100)}</div>`;
+                div.onclick = () => {
+                    if(!owned && state.user.coins >= i*100) {
+                        if(confirm(`是否花費 💰${i*100} 購買此神秘寶物？`)) {
+                            state.user.coins -= i*100;
+                            state.user.collection.push(imgName);
+                            updateCoinDisplay();
+                            showShop();
+                        }
+                    }
+                };
                 grid.appendChild(div);
             }
             showPage('shop-page');
         }
 
         function openLevelSelect(mode) {
-            currentMode = mode; isDaily = false;
-            const container = document.getElementById('level-container'); container.innerHTML = '';
-            const titleInfo = { 'choice': { text: '真意之殿關卡', color: 'var(--accent)' }, 'spell': { text: '迴音之谷關卡', color: 'var(--success)' }, 'cloze': { text: '萬辭之塔關卡', color: 'var(--gold)' } };
-            const header = document.querySelector('#level-page h2');
-            const info = titleInfo[mode] || { text: '修行關卡', color: 'var(--gold)' };
-            header.innerText = info.text; header.style.color = info.color;
-            const max = Math.ceil(vocab.length / 5);
+            state.game.mode = mode;
+            const container = $('level-container');
+            container.innerHTML = '';
+            const max = Math.ceil(state.vocab.length / 5);
             for(let i=1; i<=max; i++) {
-                const div = document.createElement('div'); div.className = `level-card ${mode} ${levelProgress[mode+'_'+i] ? 'all-correct' : ''}`;
-                div.innerText = i; 
-                div.onclick = () => { currentLevel = i; gamePool = vocab.slice((i-1)*5, i*5).map(v=>({...v, type: mode})); startNewGame(); };
+                const div = document.createElement('div');
+                div.className = `level-card ${mode} ${state.user.progress[mode+'_'+i] ? 'all-correct' : ''}`;
+                div.innerText = i;
+                div.onclick = () => {
+                    state.game.level = i;
+                    state.game.pool = state.vocab.slice((i-1)*5, i*5).map(v => ({...v, type: mode}));
+                    startGame();
+                };
                 container.appendChild(div);
             }
             showPage('level-page');
         }
 
-        function startDaily() { isDaily = true; gamePool = [...vocab].sort(()=>0.5-Math.random()).slice(0, 10).map((v, i)=>({ ...v, type: ['choice','spell','cloze'][i % 3] })); startNewGame(); }
-        function startNewGame() { currentIdx = 0; correctCount = 0; showPage('game-page'); renderQuestion(); }
-        
+        function startDaily() {
+            if(state.user.lastDaily === new Date().toDateString()) return alert("今日已挑戰");
+            state.game.pool = [...state.vocab].sort(()=>0.5-Math.random()).slice(0, 10).map((v, i) => ({...v, type: ['choice','spell','cloze'][i%3]}));
+            state.game.mode = "daily";
+            startGame();
+        }
+
+        function startGame() {
+            state.game.idx = 0;
+            state.game.correct = 0;
+            showPage('game-page');
+            renderQuestion();
+        }
+
         function renderQuestion() {
-            canAnswer = true; const q = gamePool[currentIdx];
-            document.getElementById('game-progress-tag').innerText = `${currentIdx + 1} / ${gamePool.length}`; 
-            document.getElementById('q-card-box').className = 'q-card';
-            document.getElementById('correct-answer-display').style.display = 'none';
-            const main = document.getElementById('q-main'), hint = document.getElementById('q-hint'), action = document.getElementById('action-area');
-            action.innerHTML = ''; hint.innerText = '';
-            if (q.type === 'spell') {
-                main.innerHTML = `<button class="opt-btn" onclick="speak('${q.en}')">🔊 聽音朗讀</button>`;
-                hint.innerText = `聽音拼字 (解釋：${q.cn})`; 
-                const input = document.createElement('input'); input.className = 'input-box'; input.placeholder = "請輸入英文生字"; input.style.marginBottom = "15px";
-                const sub = document.createElement('button'); sub.className = 'btn-solid'; sub.style.width = "100%"; 
-                sub.style.background = "linear-gradient(135deg, #10b981 0%, #059669 100%)";
-                sub.innerText = "提交回答";
-                sub.onclick = () => checkResult(input.value.trim().toLowerCase() === q.en.toLowerCase(), q.en);
-                action.append(input, sub); setTimeout(() => speak(q.en), 800);
-            } else if (q.type === 'choice') {
-                main.innerText = q.en; hint.innerText = "選出正確解釋";
-                makeOptions(q.cn, 'cn').forEach(o => {
-                    const b = document.createElement('button'); b.className = 'opt-btn'; b.innerText = o;
-                    b.onclick = () => checkResult(o === q.cn, q.cn); action.appendChild(b);
-                });
-            } else if (q.type === 'cloze') {
-                main.innerText = q.s.replace('______', '( ? )'); hint.innerText = "選出合適單字";
-                makeOptions(q.en, 'en').forEach(o => {
-                    const b = document.createElement('button'); b.className = 'opt-btn'; b.innerText = o;
-                    b.onclick = () => checkResult(o === q.en, q.en); action.appendChild(b);
+            state.game.canAnswer = true;
+            const q = state.game.pool[state.game.idx];
+            $('game-progress-tag').innerText = `${state.game.idx + 1} / ${state.game.pool.length}`;
+            $('q-card-box').className = 'q-card';
+            $('correct-answer-display').style.display = 'none';
+            $('next-btn').style.display = 'none';
+            
+            const area = $('action-area');
+            area.innerHTML = '';
+
+            if(q.type === 'spell') {
+                $('q-main').innerHTML = `<button class="opt-btn" onclick="speak('${q.en}')">🔊 聽音朗讀</button>`;
+                $('q-hint').innerText = `拼出單字 (解釋：${q.cn})`;
+                const input = document.createElement('input');
+                input.className = 'login-input';
+                input.style.width = "100%"; input.style.padding = "15px"; input.style.boxSizing = "border-box";
+                input.placeholder = "輸入英文...";
+                const btn = document.createElement('button');
+                btn.className = 'btn-solid'; btn.innerText = "提交回答"; btn.style.width="100%"; btn.style.marginTop="10px";
+                btn.onclick = () => checkAns(input.value.trim().toLowerCase() === q.en.toLowerCase(), q.en);
+                area.append(input, btn);
+                setTimeout(()=>speak(q.en), 500);
+            } else {
+                $('q-main').innerText = q.type === 'choice' ? q.en : q.s.replace('______', '( ? )');
+                $('q-hint').innerText = q.type === 'choice' ? "選擇正確解釋" : "選擇合適單字";
+                const correctVal = q.type === 'choice' ? q.cn : q.en;
+                makeOptions(correctVal, q.type === 'choice' ? 'cn' : 'en').forEach(opt => {
+                    const b = document.createElement('button');
+                    b.className = 'opt-btn';
+                    b.innerText = opt;
+                    b.onclick = () => checkAns(opt === correctVal, correctVal);
+                    area.appendChild(b);
                 });
             }
-            document.getElementById('next-btn').style.display = 'none';
         }
 
-        function checkResult(isRight, correct) { 
-            if(!canAnswer) return; canAnswer = false; 
-            const m = isDaily ? 'daily' : currentMode;
-            levelProgress[m+'_total'] = (levelProgress[m+'_total'] || 0) + 1;
-            if(isRight) { 
-                correctCount++; myCoins += (isDaily ? 20 : 1); 
-                levelProgress[m+'_correct'] = (levelProgress[m+'_correct'] || 0) + 1;
-                if (navigator.vibrate) { navigator.vibrate(100); }
-                winSfx.currentTime = 0; winSfx.play();
-                const slash = document.getElementById('slash-layer'); const body = document.body;
-                slash.classList.remove('slash-active'); body.classList.remove('shake-active');
-                void slash.offsetWidth; slash.classList.add('slash-active'); body.classList.add('shake-active');
-                document.getElementById('q-card-box').className = 'q-card right'; setTimeout(nextQuestion, 1000); 
-            } else { 
-                loseSfx.currentTime = 0; loseSfx.play(); document.getElementById('q-card-box').className = 'q-card wrong'; 
-                const d = document.getElementById('correct-answer-display'); d.innerText = `正確：${correct}`; d.style.display = 'block'; 
-                document.getElementById('next-btn').style.display = 'block'; 
-            } 
-            updateCoinDisplay(); 
-        }
+        function checkAns(isRight, correct) {
+            if(!state.game.canAnswer) return;
+            state.game.canAnswer = false;
 
-        function nextQuestion() { 
-            currentIdx++; 
-            if(currentIdx < gamePool.length) renderQuestion(); 
-            else showFinalResult();
-        }
-
-        function showFinalResult() {
-            const overlay = document.getElementById('result-overlay');
-            const img = document.getElementById('result-img');
-            const winRatio = correctCount / gamePool.length;
-
-            img.src = (winRatio >= 0.5) ? 'images/success01.png' : 'images/success02.png';
-            overlay.style.display = 'flex';
-            
-            successSfx.currentTime = 0;
-            successSfx.play();
-
-            if(isDaily) {
-                lastDailyDate = new Date().toDateString();
+            if(isRight) {
+                state.game.correct++;
+                state.user.coins += (state.game.mode === 'daily' ? 20 : 1);
+                $('win-sfx').play();
+                $('slash-layer').classList.add('slash-active');
+                document.body.classList.add('shake-active');
+                setTimeout(() => {
+                    $('slash-layer').classList.remove('slash-active');
+                    document.body.classList.remove('shake-active');
+                    nextQuestion();
+                }, 800);
             } else {
-                if(correctCount === gamePool.length) levelProgress[currentMode+'_'+currentLevel] = true;
+                $('lose-sfx').play();
+                $('correct-answer-display').innerText = `正確答案：${correct}`;
+                $('correct-answer-display').style.display = 'block';
+                $('next-btn').style.display = 'block';
             }
             updateCoinDisplay();
+        }
 
-            // 停留 3 秒自動離開
-            resultTimer = setTimeout(closeResultImmediately, 3000);
+        function nextQuestion() {
+            state.game.idx++;
+            if(state.game.idx < state.game.pool.length) renderQuestion();
+            else finishGame();
+        }
+
+        function finishGame() {
+            const win = state.game.correct / state.game.pool.length >= 0.5;
+            $('result-img').src = win ? 'images/success01.png' : 'images/success02.png';
+            $('result-overlay').style.display = 'flex';
+            $('success-sfx').play();
+
+            if(state.game.mode === 'daily') state.user.lastDaily = new Date().toDateString();
+            else if(state.game.correct === state.game.pool.length) state.user.progress[state.game.mode+'_'+state.game.level] = true;
+            
+            setTimeout(closeResultImmediately, 3000);
         }
 
         function closeResultImmediately() {
-            if(resultTimer) clearTimeout(resultTimer);
-            document.getElementById('result-overlay').style.display = 'none';
-            if(isDaily) goHome(); else openLevelSelect(currentMode);
+            $('result-overlay').style.display = 'none';
+            state.game.mode === 'daily' ? goHome() : openLevelSelect(state.game.mode);
         }
 
-        function makeOptions(c, k) { let r = [c]; while(r.length < 3) { let o = vocab[Math.floor(Math.random()*vocab.length)][k]; if(!r.includes(o)) r.push(o); } return r.sort(()=>0.5-Math.random()); }
-        function closeModal() { document.getElementById('sword-modal').style.display = 'none'; }
-        function speak(text) { window.speechSynthesis.cancel(); const msg = new SpeechSynthesisUtterance(text); msg.lang = 'en-US'; msg.volume = sfxVolume; window.speechSynthesis.speak(msg); }
+        function updateCoinDisplay() {
+            $('home-coin').innerText = state.user.coins;
+            if($('shop-coin')) $('shop-coin').innerText = state.user.coins;
+            checkDailyBtn();
+            syncCloud();
+        }
+
+        function checkDailyBtn() {
+            const done = state.user.lastDaily === new Date().toDateString();
+            $('daily-btn').disabled = done;
+            $('daily-btn').innerText = done ? "明日再戰" : "每日挑戰";
+        }
+
+        async function syncCloud() {
+            if(state.user.isGuest || !state.user.id) return;
+            await fb.updateDoc(fb.doc(fb.db, "students", state.user.id), {
+                coins: state.user.coins,
+                collection: state.user.collection,
+                progress: state.user.progress,
+                lastDailyDate: state.user.lastDaily
+            });
+        }
+
+        function goHome() { showPage('home-page'); }
+        function toggleSettings(show) { $('settings-modal').style.display = show ? 'flex' : 'none'; }
+
+        function updateAudio() {
+            const bgmVal = $('bgm-vol').value;
+            const sfxVal = $('sfx-vol').value;
+            $('bg_music').volume = bgmVal;
+            state.ui.sfxVol = sfxVal;
+            ['win-sfx','lose-sfx','success-sfx'].forEach(id => $(id).volume = sfxVal);
+            state.ui.isMuted = (bgmVal == 0 && sfxVal == 0);
+            refreshMuteBtnUI();
+        }
+
+        function toggleMasterMute() {
+            state.ui.isMuted = !state.ui.isMuted;
+            if(state.ui.isMuted) {
+                state.ui.lastBgmVol = $('bgm-vol').value;
+                state.ui.lastSfxVol = $('sfx-vol').value;
+                $('bgm-vol').value = 0; $('sfx-vol').value = 0;
+            } else {
+                $('bgm-vol').value = state.ui.lastBgmVol > 0 ? state.ui.lastBgmVol : 0.5;
+                $('sfx-vol').value = state.ui.lastSfxVol > 0 ? state.ui.lastSfxVol : 0.8;
+            }
+            updateAudio();
+        }
+
+        function refreshMuteBtnUI() {
+            const btn = $('master-mute-btn');
+            if(state.ui.isMuted) { btn.innerText = "🔇 全部靜音中"; btn.classList.add('is-muted'); }
+            else { btn.innerText = "🔊 聲音：開啟中"; btn.classList.remove('is-muted'); }
+        }
+
+        function makeOptions(correct, key) {
+            let opts = [correct];
+            while(opts.length < 3) {
+                let r = state.vocab[Math.floor(Math.random()*state.vocab.length)][key];
+                if(!opts.includes(r)) opts.push(r);
+            }
+            return opts.sort(() => 0.5 - Math.random());
+        }
+
+        function speak(txt) {
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(txt);
+            utterance.lang = 'en-US';
+            utterance.volume = state.ui.sfxVol;
+            window.speechSynthesis.speak(utterance);
+        }
+
+        async function loadAdminStats() {
+            const area = $('admin-display-area');
+            area.innerHTML = "<p style='text-align:center;'>載入中...</p>";
+            const snap = await fb.getDocs(fb.collection(fb.db, "students"));
+            let html = `<table style="width:100%; border-collapse:collapse; font-size:0.8rem;">
+                <tr style="color:var(--gold); border-bottom:1px solid #475569;">
+                    <th>ID</th><th>💰</th><th>進度</th>
+                </tr>`;
+            snap.forEach(d => {
+                const u = d.data();
+                if(u.role !== 'super admin') {
+                    html += `<tr style="text-align:center; border-bottom:1px solid #1e293b;">
+                        <td>${d.id}</td><td>${u.coins}</td><td>${Object.keys(u.progress||{}).length} 關</td>
+                    </tr>`;
+                }
+            });
+            area.innerHTML = html + "</table>";
+        }
     </script>
 </body>
 </html>
