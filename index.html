@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>英語煉金術 V2.30 </title>
+    <title>英語煉金術 V2.32</title>
     <style>
         :root {
             --bg: #0f172a; --card: rgba(30, 41, 59, 0.8); --accent: #6366f1;
             --gold: #f59e0b; --text: #f8fafc; --success: #22c55e; --error: #ef4444;
-            --pink: #ec4899;
+            --pink: #ec4899; --green: #10b981; 
             --btn-wea: #431407; --btn-wea-active: #f59e0b;
             --btn-pet: #064e3b; --btn-pet-active: #10b981;
         }
@@ -98,7 +98,7 @@
             color: white !important; font-weight: bold;
         }
         .level-card.choice { border-color: var(--accent); } 
-        .level-card.spell { border-color: var(--gold); }     
+        .level-card.spell { border-color: var(--green); }     
         .level-card.cloze { border-color: var(--pink); }     
         
         .level-card.all-correct::after { content: '✔️'; position: absolute; top: -5px; right: -5px; background: var(--success); border-radius: 50%; font-size: 0.8rem; padding: 2px; color: white; border: 1px solid white; }
@@ -123,9 +123,8 @@
     <div id="start-overlay" class="overlay-base">
         <img src="images/title_logo.png" class="start-logo">
         <div class="login-box">
-            <h3 style="text-align:center; margin:0 0 10px 0; color:var(--gold);">歡迎來到煉金術世界</h3>
-            <button class="btn-base btn-init" onclick="handleGuestLogin()">進入修行</button>
-            <p style="text-align:center; font-size:0.8rem; color:#94a3b8; margin:0;">以訪客身份開始體驗</p>
+            <h3 style="text-align:center; margin-bottom:10px; color:var(--gold);">歡迎來到修行之路</h3>
+            <button class="btn-base btn-init" onclick="handleGuestLogin()">以訪客身份進入修行</button>
         </div>
     </div>
 
@@ -136,13 +135,6 @@
                 <button class="btn-solid" onclick="location.reload()">登出</button>
             </div>
             <div id="admin-display-area" style="background:var(--card); border-radius:15px; height:300px; overflow-y:auto; margin-bottom:20px;"></div>
-            
-            <div style="background:var(--card); padding:20px; border-radius:15px; border: 1px solid var(--success);">
-                <h3 style="color:var(--success); margin-top:0;">錄入新學生</h3>
-                <input type="text" id="add-id" class="login-input" placeholder="學號" style="width:100%; padding:10px; margin-bottom:10px; box-sizing:border-box;">
-                <input type="password" id="add-pwd" class="login-input" placeholder="密碼" style="width:100%; padding:10px; margin-bottom:10px; box-sizing:border-box;">
-                <button class="btn-solid" style="width:100%; background:var(--success);" onclick="adminAddStudent()">確認錄入</button>
-            </div>
         </div>
     </div>
 
@@ -222,6 +214,16 @@
         </div>
     </div>
 
+    <div id="custom-confirm-modal" class="modal">
+        <div style="background:var(--card); padding:30px; border-radius:20px; width:80%; max-width:300px; text-align:center;">
+            <h3 id="confirm-msg" style="color:var(--gold); margin-bottom:20px;">是否購買？</h3>
+            <div style="display:flex; gap:10px;">
+                <button id="confirm-yes-btn" class="btn-solid" style="flex:1; background:var(--success);">確認 (Confirm)</button>
+                <button class="btn-solid" style="flex:1; background:var(--error);" onclick="$('custom-confirm-modal').style.display='none'">取消</button>
+            </div>
+        </div>
+    </div>
+
     <div id="sword-modal" class="modal" onclick="this.style.display='none'">
         <img id="weapon-display" style="max-width:80%;" src="">
     </div>
@@ -271,7 +273,6 @@
             if(['home-page', 'shop-page', 'inv-page'].includes(id)) updateCoinDisplay();
         }
 
-        // 雖然登入框移除了，但保留此邏輯以防 admin 頁面或其他地方調用
         function handleGuestLogin() {
             state.user = { id: "guest", coins: 500, collection: [], progress: {}, lastDaily: "", isGuest: true };
             startCultivation();
@@ -323,14 +324,26 @@
                 const div = document.createElement('div');
                 div.className = `shop-item ${owned ? 'owned' : 'locked'}`;
                 div.innerHTML = `<img src="images/${imgName}" onerror="this.parentElement.style.display='none'"><div class="shop-price-tag">${owned ? '已持有' : '💰 '+(i*100)}</div>`;
+                
                 div.onclick = () => {
                     if(!owned && state.user.coins >= i*100) {
-                        if(confirm(`是否花費 💰${i*100} 購買此神秘寶物？`)) {
+                        const modal = $('custom-confirm-modal');
+                        const msg = $('confirm-msg');
+                        const yesBtn = $('confirm-yes-btn');
+                        
+                        msg.innerText = `是否花費 💰${i*100} 購買？`;
+                        modal.style.display = 'flex';
+
+                        yesBtn.onclick = () => {
                             state.user.coins -= i*100;
                             state.user.collection.push(imgName);
                             updateCoinDisplay();
                             showShop();
-                        }
+                            modal.style.display = 'none';
+                            $('success-sfx').play();
+                        };
+                    } else if (!owned) {
+                        alert("金幣不足以購買！");
                     }
                 };
                 grid.appendChild(div);
@@ -387,7 +400,6 @@
                 $('q-hint').innerText = `拼出單字 (解釋：${q.cn})`;
                 const input = document.createElement('input');
                 input.className = 'login-input';
-                input.style.width = "100%"; input.style.padding = "15px"; input.style.boxSizing = "border-box";
                 input.placeholder = "輸入英文...";
                 const btn = document.createElement('button');
                 btn.className = 'btn-solid'; btn.innerText = "提交回答"; btn.style.width="100%"; btn.style.marginTop="10px";
@@ -459,23 +471,12 @@
             $('home-coin').innerText = state.user.coins;
             if($('shop-coin')) $('shop-coin').innerText = state.user.coins;
             checkDailyBtn();
-            syncCloud();
         }
 
         function checkDailyBtn() {
             const done = state.user.lastDaily === new Date().toDateString();
             $('daily-btn').disabled = done;
             $('daily-btn').innerText = done ? "明日再戰" : "每日挑戰";
-        }
-
-        async function syncCloud() {
-            if(state.user.isGuest || !state.user.id) return;
-            await fb.updateDoc(fb.doc(fb.db, "students", state.user.id), {
-                coins: state.user.coins,
-                collection: state.user.collection,
-                progress: state.user.progress,
-                lastDailyDate: state.user.lastDaily
-            });
         }
 
         function goHome() { showPage('home-page'); }
@@ -487,7 +488,6 @@
             $('bg_music').volume = bgmVal;
             state.ui.sfxVol = sfxVal;
             ['win-sfx','lose-sfx','success-sfx'].forEach(id => $(id).volume = sfxVal);
-            state.ui.isMuted = (bgmVal == 0 && sfxVal == 0);
             refreshMuteBtnUI();
         }
 
@@ -496,7 +496,8 @@
             if(state.ui.isMuted) {
                 state.ui.lastBgmVol = $('bgm-vol').value;
                 state.ui.lastSfxVol = $('sfx-vol').value;
-                $('bgm-vol').value = 0; $('sfx-vol').value = 0;
+                $('bgm-vol').value = 0;
+                $('sfx-vol').value = 0;
             } else {
                 $('bgm-vol').value = state.ui.lastBgmVol > 0 ? state.ui.lastBgmVol : 0.5;
                 $('sfx-vol').value = state.ui.lastSfxVol > 0 ? state.ui.lastSfxVol : 0.8;
@@ -506,8 +507,13 @@
 
         function refreshMuteBtnUI() {
             const btn = $('master-mute-btn');
-            if(state.ui.isMuted) { btn.innerText = "🔇 全部靜音中"; btn.classList.add('is-muted'); }
-            else { btn.innerText = "🔊 聲音：開啟中"; btn.classList.remove('is-muted'); }
+            if($('bgm-vol').value == 0 && $('sfx-vol').value == 0) {
+                btn.innerText = "🔇 全部靜音中";
+                btn.classList.add('is-muted');
+            } else {
+                btn.innerText = "🔊 聲音：開啟中";
+                btn.classList.remove('is-muted');
+            }
         }
 
         function makeOptions(correct, key) {
@@ -525,25 +531,6 @@
             utterance.lang = 'en-US';
             utterance.volume = state.ui.sfxVol;
             window.speechSynthesis.speak(utterance);
-        }
-
-        async function loadAdminStats() {
-            const area = $('admin-display-area');
-            area.innerHTML = "<p style='text-align:center;'>載入中...</p>";
-            const snap = await fb.getDocs(fb.collection(fb.db, "students"));
-            let html = `<table style="width:100%; border-collapse:collapse; font-size:0.8rem;">
-                <tr style="color:var(--gold); border-bottom:1px solid #475569;">
-                    <th>ID</th><th>💰</th><th>進度</th>
-                </tr>`;
-            snap.forEach(d => {
-                const u = d.data();
-                if(u.role !== 'super admin') {
-                    html += `<tr style="text-align:center; border-bottom:1px solid #1e293b;">
-                        <td>${d.id}</td><td>${u.coins}</td><td>${Object.keys(u.progress||{}).length} 關</td>
-                    </tr>`;
-                }
-            });
-            area.innerHTML = html + "</table>";
         }
     </script>
 </body>
