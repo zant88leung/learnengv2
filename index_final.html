@@ -8,7 +8,7 @@
         :root {
             --bg: #0f172a; --card: rgba(30, 41, 59, 0.8); --accent: #6366f1;
             --gold: #f59e0b; --text: #f8fafc; --success: #22c55e; --error: #ef4444;
-            --pink: #ec4899;
+            --pink: #ec4899; --green: #10b981; 
             --btn-wea: #431407; --btn-wea-active: #f59e0b;
             --btn-pet: #064e3b; --btn-pet-active: #10b981;
         }
@@ -102,7 +102,7 @@
             color: white !important; font-weight: bold;
         }
         .level-card.choice { border-color: var(--accent); } 
-        .level-card.spell { border-color: var(--gold); }     
+        .level-card.spell { border-color: var(--green); }     
         .level-card.cloze { border-color: var(--pink); }     
         
         .level-card.all-correct::after { content: '✔️'; position: absolute; top: -5px; right: -5px; background: var(--success); border-radius: 50%; font-size: 0.8rem; padding: 2px; color: white; border: 1px solid white; }
@@ -225,13 +225,20 @@
     <div id="settings-modal" class="modal">
         <div style="background:var(--card); padding:30px; border-radius:20px; width:80%; max-width:300px;">
             <h3 style="text-align:center; color:var(--gold);">系統設定</h3>
-            
             <button id="master-mute-btn" class="mute-toggle-btn" onclick="toggleMasterMute()">🔊 聲音：開啟中</button>
-            
             <p>背景音樂：<input type="range" id="bgm-vol" min="0" max="1" step="0.1" value="0.5" onchange="updateAudio()"></p>
             <p>音效大小：<input type="range" id="sfx-vol" min="0" max="1" step="0.1" value="0.8" onchange="updateAudio()"></p>
-            
             <button class="btn-solid" style="width:100%; margin-top:10px;" onclick="toggleSettings(false)">確定</button>
+        </div>
+    </div>
+
+    <div id="custom-confirm-modal" class="modal">
+        <div style="background:var(--card); padding:30px; border-radius:20px; width:80%; max-width:300px; text-align:center;">
+            <h3 id="confirm-msg" style="color:var(--gold); margin-bottom:20px;">是否購買？</h3>
+            <div style="display:flex; gap:10px;">
+                <button id="confirm-yes-btn" class="btn-solid" style="flex:1; background:var(--success);">確認 (Confirm)</button>
+                <button class="btn-solid" style="flex:1; background:var(--error);" onclick="$('custom-confirm-modal').style.display='none'">取消</button>
+            </div>
         </div>
     </div>
 
@@ -361,14 +368,26 @@
                 const div = document.createElement('div');
                 div.className = `shop-item ${owned ? 'owned' : 'locked'}`;
                 div.innerHTML = `<img src="images/${imgName}" onerror="this.parentElement.style.display='none'"><div class="shop-price-tag">${owned ? '已持有' : '💰 '+(i*100)}</div>`;
+                
                 div.onclick = () => {
                     if(!owned && state.user.coins >= i*100) {
-                        if(confirm(`是否花費 💰${i*100} 購買此神秘寶物？`)) {
+                        const modal = $('custom-confirm-modal');
+                        const msg = $('confirm-msg');
+                        const yesBtn = $('confirm-yes-btn');
+                        
+                        msg.innerText = `是否花費 💰${i*100} 購買？`;
+                        modal.style.display = 'flex';
+
+                        yesBtn.onclick = () => {
                             state.user.coins -= i*100;
                             state.user.collection.push(imgName);
                             updateCoinDisplay();
                             showShop();
-                        }
+                            modal.style.display = 'none';
+                            $('success-sfx').play();
+                        };
+                    } else if (!owned) {
+                        alert("金幣不足以購買此神兵靈寵！");
                     }
                 };
                 grid.appendChild(div);
@@ -518,16 +537,12 @@
         function goHome() { showPage('home-page'); }
         function toggleSettings(show) { $('settings-modal').style.display = show ? 'flex' : 'none'; }
 
-        // 修改後的音量更新邏輯
         function updateAudio() {
             const bgmVal = $('bgm-vol').value;
             const sfxVal = $('sfx-vol').value;
-            
             $('bg_music').volume = bgmVal;
             state.ui.sfxVol = sfxVal;
             ['win-sfx','lose-sfx','success-sfx'].forEach(id => $(id).volume = sfxVal);
-            
-            // 如果手動調低到 0，更新靜音按鈕狀態
             if(bgmVal == 0 && sfxVal == 0) {
                 state.ui.isMuted = true;
                 refreshMuteBtnUI();
@@ -537,25 +552,17 @@
             }
         }
 
-        // 一鍵靜音功能
         function toggleMasterMute() {
-            const btn = $('master-mute-btn');
             state.ui.isMuted = !state.ui.isMuted;
-            
             if(state.ui.isMuted) {
-                // 記錄靜音前的音量
                 state.ui.lastBgmVol = $('bgm-vol').value;
                 state.ui.lastSfxVol = $('sfx-vol').value;
-                
-                // 歸零
                 $('bgm-vol').value = 0;
                 $('sfx-vol').value = 0;
             } else {
-                // 恢復音量 (若紀錄為0則給預設值)
                 $('bgm-vol').value = state.ui.lastBgmVol > 0 ? state.ui.lastBgmVol : 0.5;
                 $('sfx-vol').value = state.ui.lastSfxVol > 0 ? state.ui.lastSfxVol : 0.8;
             }
-            
             updateAudio();
             refreshMuteBtnUI();
         }
