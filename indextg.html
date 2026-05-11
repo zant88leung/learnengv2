@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>英語煉金術 V2.48</title>
+    <title>英語煉金術 V2.62</title>
     <style>
         :root {
             --bg: #0f172a; --card: rgba(30, 41, 59, 0.8); --accent: #6366f1;
@@ -43,7 +43,7 @@
         .shake-active { animation: shake-anim 0.15s ease-in-out 2; }
 
         .overlay-base { position: fixed; inset: 0; display: flex; justify-content: center; align-items: center; z-index: 9999; }
-        #result-overlay { background: rgba(0,0,0,0.7); backdrop-filter: blur(3px); cursor: pointer; display: none; }
+        #result-overlay { background: rgba(0,0,0,0.7); backdrop-filter: blur(3px); display: none; }
         #result-img { max-width: 50%; max-height: 50%; object-fit: contain; animation: zoomIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
 
         #start-overlay { background: var(--bg); z-index: 10001; flex-direction: column; }
@@ -67,9 +67,8 @@
         .header-ui { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; width: 100%; }
         .coin-bar { background: rgba(0, 0, 0, 0.6); padding: 8px 15px; border-radius: 30px; border: 1px solid var(--gold); color: var(--gold); font-weight: bold; }
         
-        /* Admin 精簡設計 */
         .admin-table-container { width: 100%; max-width: 600px; overflow-x: auto; border-radius: 10px; margin: 0 auto; border: 1px solid rgba(255,255,255,0.1); }
-        .admin-table { width: 100%; border-collapse: collapse; background: var(--card); font-size: 0.75rem; white-space: nowrap; }
+        .admin-table { width: 100%; border-collapse: collapse; background: var(--card); font-size: 1rem; white-space: nowrap; }
         .admin-table th, .admin-table td { padding: 10px 6px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1); }
         .admin-table th { background: rgba(99, 102, 241, 0.4); color: var(--gold); font-weight: normal; }
         .admin-section { width: 100%; max-width: 450px; background: var(--card); border: 1px solid var(--accent); border-radius: 15px; padding: 15px; margin-top: 20px; }
@@ -78,7 +77,6 @@
         .staff-rule { font-size: 0.75rem; color: #fb7185; margin-bottom: 10px; font-weight: bold; }
         .staff-content { display: none; padding: 10px; flex-direction: column; gap: 10px; background: rgba(0,0,0,0.3); border-radius: 10px; }
 
-        /* 遊戲核心 UI */
         .hero-btn { width: 100%; height: 72px; font-size: 1.25rem; font-weight: 800; color: white; cursor: pointer; background: transparent no-repeat center / contain; display: flex; align-items: center; justify-content: center; gap: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.7); margin-bottom: 12px; border: none; }
         .btn-1 { background-image: url('images/btn_icon_1.png'); }
         .btn-2 { background-image: url('images/btn_icon_2.png'); }
@@ -87,7 +85,7 @@
         .btn-5 { background-image: url('images/btn_icon_5.png'); }
 
         .category-nav { display: flex; gap: 10px; margin-bottom: 15px; width: 100%; }
-        .cat-btn { flex: 1; padding: 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2); color: #cbd5e1; font-weight: bold; cursor: pointer; }
+        .cat-btn { flex: 1; padding: 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2); color: #cbd5e1; font-weight: bold; cursor: pointer; font-size: 1rem;}
         .cat-btn-wea { background: var(--btn-wea); }
         .cat-btn-pet { background: var(--btn-pet); }
         .cat-btn.active { border-color: white; color: white; }
@@ -121,7 +119,7 @@
 <body>
 
     <div id="slash-layer" class="slash-effect"></div>
-    <div id="result-overlay" class="overlay-base" onclick="closeResultImmediately()"><img id="result-img" src=""></div>
+    <div id="result-overlay" class="overlay-base"><img id="result-img" src=""></div>
 
     <div id="start-overlay" class="overlay-base">
         <img src="images/title_logo.png" class="start-logo">
@@ -132,7 +130,7 @@
                 <input type="password" id="stu-pwd" class="login-input" placeholder="密碼">
                 <span class="eye-btn" onclick="togglePassword('stu-pwd', this)">👁️</span>
             </div>
-            <button class="btn-base btn-init" style="font-size: 1.2rem; padding: 15px;" id="login-trigger">進入系統</button>
+            <button class="btn-base btn-init" style="font-size: 1.2rem; padding: 15px;" id="login-trigger">開始修行</button>
             <button class="btn-solid" style="background: #475569;" id="guest-trigger">以訪客身份體驗</button>
         </div>
     </div>
@@ -143,7 +141,7 @@
     </div>
 
     <div id="admin-page" class="page">
-        <h2 style="color:var(--gold); margin-bottom: 15px; font-size: 1.5rem;">總導師法座</h2>
+        <h2 style="color:var(--gold); margin-bottom: 15px; font-size: 1.5rem;">管理系統</h2>
         
         <div class="admin-table-container">
             <table class="admin-table">
@@ -155,27 +153,28 @@
         </div>
 
         <div class="admin-section">
-            <h4 style="margin: 0 0 10px 0; color: var(--gold); text-align: center; font-size: 0.9rem;">📜 招募新修行者</h4>
+            <h4 style="margin: 0 0 10px 0; color: var(--gold); text-align: center; font-size: 1rem;">📜 登錄新學生</h4>
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
                 <input type="text" id="reg-id" class="login-input" style="padding: 10px; font-size: 0.9rem;" placeholder="學號ID">
-                <input type="password" id="reg-pwd" class="login-input" style="padding: 10px; font-size: 0.9rem;" placeholder="密碼">
-                <input type="password" id="reg-pwd-confirm" class="login-input" style="grid-column: span 2; padding: 10px; font-size: 0.9rem;" placeholder="確認密碼">
-                <button class="btn-solid" style="grid-column: span 2; background: var(--success); padding: 10px;" id="register-student-btn">確認新增學員</button>
+                <input type="text" id="reg-pwd" class="login-input" style="padding: 10px; font-size: 0.9rem;" placeholder="密碼">
+                <input type="text" id="reg-pwd-confirm" class="login-input" style="grid-column: span 2; padding: 10px; font-size: 0.9rem;" placeholder="確認密碼">
+                <button class="btn-solid" style="grid-column: span 2; background: var(--success); padding: 10px;" id="register-student-btn">確認新增學生</button>
             </div>
         </div>
 
         <div class="staff-only-zone">
             <div class="staff-rule">守則：此區域僅供系統工作人員使用。</div>
             <div class="staff-tool-container">
-                <button class="btn-solid" style="background:none; border:1px solid #475569; width:100%; color:#94a3b8; font-size: 0.8rem;" onclick="toggleStaffTools()">展開系統數據工具</button>
+                <button class="btn-solid" style="background:none; border:1px solid #a093ad; width:40%; color:#a093ad; font-size: 0.7rem;" id="toggle-staff-btn">展開系統數據工具</button>
                 <div id="staff-content" class="staff-content">
-                    <button class="btn-solid" style="background: #b91c1c; font-size: 0.75rem;" id="sync-data-btn">將本地題目同步至雲端 (批量)</button>
+                    <button class="btn-solid" style="background: #32a4d1; font-size: 0.75rem;" id="sync-data-btn">將本地題目同步至雲端 (批量)</button>
+                    <button class="btn-solid" style="background: #450a0a; border: 1px solid #ef4444; font-size: 0.75rem; margin-top: 5px;" id="clear-questions-btn">🔥 清空雲端所有題目</button>
                     <div id="sync-status" style="font-size: 0.7rem; color: #22c55e; margin-top:5px;"></div>
                 </div>
             </div>
         </div>
 
-        <button class="btn-solid" style="background:#475569; margin-top:20px; width:150px; padding: 10px;" onclick="location.reload()">退出管理</button>
+        <button class="btn-solid" style="background:#475569; margin-top:20px; width:200px; padding: 10px;" onclick="location.reload()">退出管理</button>
     </div>
 
     <div id="home-page" class="page">
@@ -185,11 +184,14 @@
             <div class="coin-bar">💰 <span id="home-coin">0</span></div>
         </div>
         <div class="ui-max-width">
-            <button class="hero-btn btn-1" onclick="openLevelSelect('choice')">真意之殿</button>
-            <button class="hero-btn btn-2" onclick="openLevelSelect('spell')">迴音之谷</button>
-            <button class="hero-btn btn-3" onclick="openLevelSelect('cloze')">萬辭之塔</button>
-            <button id="daily-btn" class="hero-btn btn-4" onclick="startDaily()">每日挑戰</button>
-            <button class="hero-btn btn-5" onclick="showInv()">藏寶閣</button>
+            <button class="hero-btn btn-1" id="open-choice">真意之殿</button>
+            <button class="hero-btn btn-2" id="open-spell">迴音之谷</button>
+            <button class="hero-btn btn-3" id="open-cloze">萬辭之塔</button>
+            <div style="text-align: center;">
+                <button id="daily-btn" class="hero-btn btn-4" style="margin-bottom: 5px;">每日挑戰</button>
+                <div style="font-size: 0.9rem; color: #94a3b8; margin-bottom: 12px;">週一至週五開放</div>
+            </div>
+            <button class="hero-btn btn-5" id="open-inv">藏寶閣</button>
         </div>
     </div>
 
@@ -202,25 +204,25 @@
                 <div id="correct-answer-display" style="color: #fb7185; margin-top: 15px; display: none; font-size: 1.4rem; font-weight: bold;"></div>
             </div>
             <div id="action-area"></div>
-            <button id="next-btn" class="btn-solid" style="display: none; width:100%; margin-top:10px; background: var(--pink);" onclick="nextQuestion()">下一題</button>
-            <button onclick="goHome()" style="background:none; border:none; color:#cbd5e1; width:100%; margin-top:20px;">結束修行</button>
+            <button id="next-btn" class="btn-solid" style="display: none; width:100%; margin-top:10px; background: var(--pink);">下一題</button>
+            <button id="exit-game-btn" style="background:none; border:none; color:#cbd5e1; width:100%; margin-top:20px; cursor:pointer;">結束修行</button>
         </div>
     </div>
 
     <div id="inv-page" class="page">
-        <div class="header-ui ui-max-width"><button class="btn-solid" onclick="goHome()">返回</button><button class="btn-solid" style="background: var(--pink); border: 1px solid white;" onclick="showShop()">商店 🛒</button></div>
+        <div class="header-ui ui-max-width"><button class="btn-solid" onclick="window.goHome()">返回</button><button class="btn-solid" style="background: var(--pink); border: 1px solid white;" onclick="window.showShop()">商店 🛒</button></div>
         <div class="category-nav ui-max-width">
-            <button id="inv-wea-btn" class="cat-btn cat-btn-wea" onclick="setCategory('inv','wea')">⚔️ 神兵</button>
-            <button id="inv-pet-btn" class="cat-btn cat-btn-pet" onclick="setCategory('inv','pet')">🐾 靈寵</button>
+            <button id="inv-wea-btn" class="cat-btn cat-btn-wea">⚔️ 神兵</button>
+            <button id="inv-pet-btn" class="cat-btn cat-btn-pet">🐾 靈寵</button>
         </div>
         <div class="inventory ui-max-width" id="inv-grid"></div>
     </div>
 
     <div id="shop-page" class="page">
-        <div class="header-ui ui-max-width"><div class="coin-bar">💰 <span id="shop-coin">0</span></div><button class="btn-solid" onclick="showInv()">返回</button></div>
+        <div class="header-ui ui-max-width"><div class="coin-bar">💰 <span id="shop-coin">0</span></div><button class="btn-solid" onclick="window.showInv()">返回</button></div>
         <div class="category-nav ui-max-width">
-            <button id="shop-wea-btn" class="cat-btn cat-btn-wea" onclick="setCategory('shop','wea')">⚔️ 神兵</button>
-            <button id="shop-pet-btn" class="cat-btn cat-btn-pet" onclick="setCategory('shop','pet')">🐾 靈寵</button>
+            <button id="shop-wea-btn" class="cat-btn cat-btn-wea">⚔️ 神兵</button>
+            <button id="shop-pet-btn" class="cat-btn cat-btn-pet">🐾 靈寵</button>
         </div>
         <div class="shop-grid ui-max-width" id="shop-grid"></div>
     </div>
@@ -228,15 +230,15 @@
     <div id="level-page" class="page">
         <h2 id="level-title" style="color:var(--gold);">修行關卡</h2>
         <div class="level-grid ui-max-width" id="level-container"></div>
-        <button class="btn-solid" onclick="goHome()" style="margin-top:40px;">返回主頁</button>
+        <button class="btn-solid" onclick="window.goHome()" style="margin-top:40px;">返回主頁</button>
     </div>
 
     <div id="settings-modal" class="modal">
         <div style="background:var(--card); padding:30px; border-radius:20px; width:80%; max-width:300px;">
             <h3 style="text-align:center; color:var(--gold);">系統設定</h3>
-            <button id="master-mute-btn" class="btn-solid" style="width:100%;" onclick="toggleMasterMute()">🔊 聲音：開啟中</button>
-            <p>音樂：<input type="range" id="bgm-vol" min="0" max="1" step="0.1" value="0.5" onchange="updateAudio()"></p>
-            <p>音效：<input type="range" id="sfx-vol" min="0" max="1" step="0.1" value="0.8" onchange="updateAudio()"></p>
+            <button id="master-mute-btn" class="btn-solid" style="width:100%;">🔊 聲音：開啟中</button>
+            <p>音樂：<input type="range" id="bgm-vol" min="0" max="1" step="0.1" value="0.5"></p>
+            <p>音效：<input type="range" id="sfx-vol" min="0" max="1" step="0.1" value="0.8"></p>
             <button class="btn-solid" id="settings-close" style="width:100%; margin-top:10px;">確定</button>
         </div>
     </div>
@@ -244,7 +246,7 @@
     <div id="custom-confirm-modal" class="modal">
         <div style="background:var(--card); padding:30px; border-radius:20px; width:80%; max-width:300px; text-align:center;">
             <h3 id="confirm-msg" style="color:var(--gold); margin-bottom:20px;">是否購買？</h3>
-            <div style="display:flex; gap:10px;"><button id="confirm-yes-btn" class="btn-solid" style="flex:1; background:var(--success);">確認</button><button class="btn-solid" style="flex:1; background:var(--error);" onclick="$('custom-confirm-modal').style.display='none'">取消</button></div>
+            <div style="display:flex; gap:10px;"><button id="confirm-yes-btn" class="btn-solid" style="flex:1; background:var(--success);">確認</button><button class="btn-solid" style="flex:1; background:var(--error);" onclick="document.getElementById('custom-confirm-modal').style.display='none'">取消</button></div>
         </div>
     </div>
 
@@ -259,13 +261,89 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
         import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
-        const firebaseConfig = { apiKey: "AIzaSyBl9Z3Y1X2W3V4U5T6S7R8Q9P0O", authDomain: "learn-english-ab8f8.firebaseapp.com", projectId: "learn-english-ab8f8" };
+        const firebaseConfig = { 
+            apiKey: "AIzaSyBl9Z3Y1X2W3V4U5T6S7R8Q9P0O", 
+            authDomain: "learn-english-ab8f8.firebaseapp.com", 
+            projectId: "learn-english-ab8f8" 
+        };
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         window.fb = { db, doc, getDoc, setDoc, updateDoc, collection, getDocs, writeBatch };
 
+        const state = {
+            user: { id: "", coins: 0, collection: [], progress: {}, lastDaily: "", isGuest: false },
+            vocab: [],
+            game: { mode: "", level: 0, idx: 0, correct: 0, pool: [], canAnswer: true },
+            ui: { category: "wea", sfxVol: 0.8, isMuted: false, lastBgmVol: 0.5, lastSfxVol: 0.8 }
+        };
+        window.state = state;
+
         const $ = id => document.getElementById(id);
         window.$ = $;
+
+        // 資料集保持不變
+        const newData = [
+            { en: "abandon", cn: "放棄", s: "He decided to ______ the sinking ship.", p: "[v]", level: 1 },
+            { en: "ability", cn: "能力", s: "Her ______ to learn quickly is impressive.", p: "[n]", level: 1 },
+            { en: "able", cn: "能夠的", s: "She is ______ to finish the work alone.", p: "[a]", level: 1 },
+            { en: "about", cn: "關於", s: "This book is ______ a famous scientist.", p: "[prep]", level: 1 },
+            { en: "above", cn: "在...之上", s: "The sun rose ______ the horizon.", p: "[prep/adv]", level: 1 },
+            { en: "absurd", cn: "荒謬的", s: "It is ______ to believe such nonsense.", p: "[a]", level: 2 },
+            { en: "abuse", cn: "濫用", s: "The manager was fired for ______ of power.", p: "[v/n]", level: 2 },
+            { en: "accelerate", cn: "加速", s: "The car began to ______ on the highway.", p: "[v]", level: 2 },
+            { en: "accept", cn: "接受", s: "She decided to ______ the job offer.", p: "[v]", level: 2 },
+            { en: "access", cn: "存取", s: "You need a password to ______ the file.", p: "[n/v]", level: 2 },
+            { en: "accumulate", cn: "累積", s: "Dust will ______ on the shelves over time.", p: "[v]", level: 3 },
+            { en: "accuracy", cn: "精確度", s: "The ______ of the test results is critical.", p: "[n]", level: 3 },
+            { en: "accuse", cn: "控告", s: "They ______ him of stealing the money.", p: "[v]", level: 3 },
+            { en: "achieve", cn: "實現", s: "You can ______ anything with hard work.", p: "[v]", level: 3 },
+            { en: "acknowledge", cn: "承認", s: "He refused to ______ his mistake.", p: "[v]", level: 3 },
+            { en: "ban", cn: "禁止", s: "The school decided to ______ smartphones.", p: "[v/n]", level: 4 },
+            { en: "band", cn: "樂團", s: "Her favorite rock ______ is touring.", p: "[n]", level: 4 },
+            { en: "bankrupt", cn: "破產", s: "The company went ______ last year.", p: "[a/v]", level: 4 },
+            { en: "bare", cn: "赤裸的", s: "His ______ feet touched the cold floor.", p: "[a]", level: 4 },
+            { en: "barely", cn: "僅僅", s: "She could ______ hear the whisper.", p: "[adv]", level: 4 },
+            { en: "beach", cn: "海灘", s: "We spent the day at the ______.", p: "[n]", level: 5 },
+            { en: "bear", cn: "承受", s: "He cannot ______ the pain anymore.", p: "[v/n]", level: 5 },
+            { en: "beast", cn: "野獸", s: "The lion is a powerful ______.", p: "[n]", level: 5 },
+            { en: "beat", cn: "打擊", s: "She managed to ______ the champion.", p: "[v/n]", level: 5 },
+            { en: "beauty", cn: "美麗", s: "The ______ of the sunset amazed us.", p: "[n]", level: 5 },
+            { en: "barren", cn: "貧瘠的", s: "No crops grow in the ______ field.", p: "[a]", level: 6 },
+            { en: "blunt", cn: "鈍的", s: "The knife is too ______ to slice bread.", p: "[a]", level: 6 },
+            { en: "bypass", cn: "避開", s: "We took a route to ______ traffic.", p: "[v/n]", level: 6 },
+            { en: "besiege", cn: "包圍", s: "Fans will ______ the singer after the show.", p: "[v]", level: 6 },
+            { en: "boycott", cn: "抵制", s: "They decided to ______ the unfair product.", p: "[v/n]", level: 6 },
+            { en: "campaign", cn: "活動", s: "They launched an advertising ______.", p: "[n/v]", level: 7 },
+            { en: "cancel", cn: "取消", s: "The flight was ______ due to weather.", p: "[v]", level: 7 },
+            { en: "cancer", cn: "癌症", s: "Early detection of ______ saves lives.", p: "[n]", level: 7 },
+            { en: "candidate", cn: "候選人", s: "She is a strong ______ for the job.", p: "[n]", level: 7 },
+            { en: "capable", cn: "有能力的", s: "He is ______ of solving the problem.", p: "[a]", level: 7 },
+            { en: "cargo", cn: "貨物", s: "The ship carried heavy ______.", p: "[n]", level: 8 },
+            { en: "carpet", cn: "地毯", s: "The cat rolled on the soft ______.", p: "[n/v]", level: 8 },
+            { en: "carry", cn: "攜帶", s: "Can you ______ this box for me?", p: "[v]", level: 8 },
+            { en: "cartoon", cn: "卡通", s: "The children love watching ______.", p: "[n]", level: 8 },
+            { en: "case", cn: "情況", s: "In any ______, we must be prepared.", p: "[n]", level: 8 },
+            { en: "damage", cn: "損害", s: "The storm caused severe ______ to the roof.", p: "[n/v]", level: 9 },
+            { en: "debate", cn: "辯論", s: "The candidates will ______ on live TV.", p: "[v/n]", level: 9 },
+            { en: "decline", cn: "下降", s: "There is a ______ in sales this month.", p: "[v/n]", level: 9 },
+            { en: "decorate", cn: "裝飾", s: "We need to ______ the hall for the party.", p: "[v]", level: 9 },
+            { en: "defend", cn: "防禦", s: "The soldiers fought to ______ their country.", p: "[v]", level: 9 },
+            { en: "election", cn: "選舉", s: "The presidential ______ is held every four years.", p: "[n]", level: 10 },
+            { en: "electricity", cn: "電力", s: "The storm cut off the ______.", p: "[n]", level: 10 },
+            { en: "element", cn: "元素", s: "Water is a vital ______ of life.", p: "[n]", level: 10 },
+            { en: "earthquake", cn: "地震", s: "The ______ shook the entire city.", p: "[n]", level: 10 },
+            { en: "economy", cn: "經濟", s: "The country's ______ is growing steadily.", p: "[n]", level: 10 },
+            { en: "fanatical", cn: "狂熱的", s: "He has a ______ interest in sports.", p: "[a]", level: 11 },
+            { en: "finite", cn: "有限的", s: "Natural resources are ______.", p: "[a]", level: 11 },
+            { en: "generation", cn: "世代", s: "The younger ______ uses social media daily.", p: "[n]", level: 11 },
+            { en: "genesis", cn: "起源", s: "This was the ______ of a new era.", p: "[n]", level: 11 },
+            { en: "harmonious", cn: "和諧的", s: "They lived in a ______ community.", p: "[a]", level: 11 },
+            { en: "haughty", cn: "傲慢的", s: "Her ______ attitude made her unpopular.", p: "[a]", level: 12 },
+            { en: "humble", cn: "謙虛的", s: "He remains ______ despite his fame.", p: "[a/v]", level: 12 },
+            { en: "idealistic", cn: "理想主義的", s: "She has an ______ view of the world.", p: "[a]", level: 12 },
+            { en: "ignite", cn: "點燃", s: "A spark could ______ the fuel.", p: "[v]", level: 12 },
+            { en: "justify", cn: "證明合理", s: "You must ______ your decision to the board.", p: "[v]", level: 12 }
+        ];
 
         async function handleLogin() {
             const id = $('stu-id').value.trim();
@@ -276,36 +354,18 @@
                 if(docSnap.exists() && docSnap.data().password === pwd) {
                     if(id === "admin") {
                         $('start-overlay').style.display = 'none';
-                        $('video-opening').style.display = 'none';
                         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
                         $('admin-page').classList.add('active');
                         loadStudentData();
                     } else {
                         const data = docSnap.data();
-                        // 學生登錄時同步更新「最後上線」日期
                         const today = new Date().toLocaleDateString('zh-HK');
                         await fb.updateDoc(fb.doc(fb.db, "students", id), { lastOnline: today });
-                        
                         state.user = { id, coins: data.coins||0, collection: data.collection||[], progress: data.progress||{}, lastDaily: data.lastDailyDate||"", isGuest: false };
                         startCultivation();
                     }
                 } else { alert("帳號或密碼錯誤"); }
             } catch(e) { alert("連線失敗"); }
-        }
-
-        async function handleAdminRegister() {
-            const rid = $('reg-id').value.trim();
-            const rpwd = $('reg-pwd').value.trim();
-            const rcpwd = $('reg-pwd-confirm').value.trim();
-            if(!rid || !rpwd) return alert("欄位不全");
-            if(rpwd !== rcpwd) return alert("密碼不一致");
-            try {
-                const docRef = fb.doc(fb.db, "students", rid);
-                const check = await fb.getDoc(docRef);
-                if(check.exists()) return alert("ID 已存在");
-                await fb.setDoc(docRef, { password: rpwd, coins: 0, collection: [], progress: {}, lastDailyDate: "", lastOnline: "尚未登錄" });
-                alert("新增成功！"); loadStudentData();
-            } catch(e) { alert("失敗"); }
         }
 
         async function loadStudentData() {
@@ -317,56 +377,91 @@
                 snap.forEach(d => {
                     if(d.id === 'admin') return;
                     const data = d.data();
-                    tbody.innerHTML += `<tr>
-                        <td>${d.id}</td>
-                        <td>-</td><td>-</td><td>-</td><td>-</td>
-                        <td style="color:#94a3b8;">${data.lastOnline || '未知'}</td>
-                        <td style="color:var(--gold);">💰 ${data.coins||0}</td>
-                    </tr>`;
+                    const prog = data.progress || {};
+                    let stats = { choice: { correct: 0, total: 0 }, spell: { correct: 0, total: 0 }, cloze: { correct: 0, total: 0 } };
+                    Object.keys(prog).forEach(key => {
+                        const mode = key.split('_')[0];
+                        if (stats[mode] && typeof prog[key] === 'string' && prog[key].includes('/')) {
+                            const [c, t] = prog[key].split('/').map(Number);
+                            stats[mode].correct += (c || 0); stats[mode].total += (t || 0);
+                        }
+                    });
+                    const fmt = (s) => `${s.correct}/${s.total}`;
+                    tbody.innerHTML += `<tr><td>${d.id}</td><td>${fmt(stats.choice)}</td><td>${fmt(stats.spell)}</td><td>${fmt(stats.cloze)}</td><td>-</td><td style="color:#94a3b8;">${data.lastOnline || '未知'}</td><td style="color:var(--gold);">💰 ${data.coins||0}</td></tr>`;
                 });
             } catch(e) { tbody.innerHTML = '<tr><td colspan="7">載入失敗</td></tr>'; }
         }
 
-        async function syncVocabToFirebase() {
-            if(!confirm("確定同步本地題目至雲端？")) return;
-            const status = $('sync-status'); status.innerText = "同步中...";
+        async function syncQuestionsToCloud() {
+            const statusEl = $('sync-status');
+            const syncBtn = $('sync-data-btn');
+            if(!newData || newData.length === 0) return alert("無數據可同步");
+            statusEl.innerText = "⏳ 同步中...";
+            syncBtn.disabled = true;
             try {
                 const batch = fb.writeBatch(fb.db);
-                state.vocab.forEach((item, index) => {
-                    batch.set(fb.doc(fb.db, "questions", `q_${String(index+1).padStart(4,'0')}`), item);
+                newData.forEach(q => {
+                    const safeId = q.en.replace(/\//g, '_'); 
+                    const docRef = fb.doc(fb.db, "questions", safeId);
+                    batch.set(docRef, q);
                 });
-                await batch.commit(); status.innerText = "✅ 同步成功！";
-            } catch (e) { status.innerText = "❌ 失敗"; }
+                await batch.commit();
+                statusEl.innerText = `✅ 成功同步 ${newData.length} 個題目！`;
+                alert("同步成功！");
+            } catch (e) {
+                console.error("Firebase Error:", e);
+                statusEl.innerText = "❌ 同步失敗: " + e.message;
+                alert("同步失敗！");
+            } finally { syncBtn.disabled = false; }
         }
 
-        window.toggleStaffTools = () => {
-            const c = $('staff-content');
-            c.style.display = (c.style.display === 'flex' ? 'none' : 'flex');
-        };
+        async function clearAllQuestions() {
+            if (!confirm("⚠️ 確定要刪除雲端所有題目嗎？")) return;
+            const statusEl = $('sync-status');
+            const clearBtn = $('clear-questions-btn');
+            statusEl.innerText = "⏳ 正在清空雲端數據...";
+            clearBtn.disabled = true;
+            try {
+                const qSnap = await fb.getDocs(fb.collection(fb.db, "questions"));
+                const batch = fb.writeBatch(fb.db);
+                let count = 0;
+                qSnap.forEach((doc) => { batch.delete(doc.ref); count++; });
+                if(count > 0) await batch.commit();
+                statusEl.innerText = `🗑️ 已清空雲端 ${count} 個題目！`;
+                alert("清空完畢！");
+                state.vocab = []; 
+            } catch (e) {
+                console.error(e);
+                statusEl.innerText = "❌ 清空失敗";
+            } finally { clearBtn.disabled = false; }
+        }
 
         $('login-trigger').onclick = handleLogin;
-        $('guest-trigger').onclick = handleGuestLogin;
-        $('register-student-btn').onclick = handleAdminRegister;
-        $('sync-data-btn').onclick = syncVocabToFirebase;
-        $('skip-vid').onclick = endOpening;
-        $('settings-trigger').onclick = () => toggleSettings(true);
-        $('settings-close').onclick = () => toggleSettings(false);
+        $('guest-trigger').onclick = () => { state.user = { id: "guest", coins: 500, collection: [], progress: {}, lastDaily: "", isGuest: true }; startCultivation(); };
+        $('sync-data-btn').onclick = syncQuestionsToCloud;
+        $('clear-questions-btn').onclick = clearAllQuestions;
+        $('toggle-staff-btn').onclick = () => { const c = $('staff-content'); c.style.display = (c.style.display === 'flex' ? 'none' : 'flex'); };
+        
+        (async () => {
+            try {
+                const qSnap = await fb.getDocs(fb.collection(fb.db, "questions"));
+                const cloudVocab = qSnap.docs.map(d => d.data());
+                const combined = [...cloudVocab, ...newData];
+                const seen = new Set();
+                state.vocab = combined.filter(v => {
+                    const duplicate = seen.has(v.en);
+                    seen.add(v.en);
+                    return !duplicate;
+                });
+            } catch(e) { state.vocab = newData; }
+        })();
 
-        try {
-            const qSnap = await fb.getDocs(fb.collection(fb.db, "questions"));
-            state.vocab = qSnap.docs.map(d => d.data());
-        } catch(e) {}
+        window.startCultivation = startCultivation;
+        window.endOpening = endOpening;
+        window.goHome = () => showPage('home-page');
     </script>
 
     <script>
-        // 核心遊戲邏輯 (恢復 v2.39)
-        const state = {
-            user: { id: "", coins: 0, collection: [], progress: {}, lastDaily: "", isGuest: false },
-            vocab: [],
-            game: { mode: "", level: 0, idx: 0, correct: 0, pool: [], canAnswer: true },
-            ui: { category: "wea", sfxVol: 0.8, isMuted: false, lastBgmVol: 0.5, lastSfxVol: 0.8 }
-        };
-
         function showPage(id) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById(id).classList.add('active');
@@ -376,11 +471,6 @@
         function togglePassword(id, btn) {
             const el = document.getElementById(id); el.type = el.type === 'password' ? 'text' : 'password';
             btn.innerText = el.type === 'password' ? '👁️' : '👓';
-        }
-
-        function handleGuestLogin() {
-            state.user = { id: "guest", coins: 500, collection: [], progress: {}, lastDaily: "", isGuest: true };
-            startCultivation();
         }
 
         function startCultivation() {
@@ -398,45 +488,46 @@
             showPage('home-page'); 
         }
 
-        function setCategory(page, cat) { state.ui.category = cat; page === 'inv' ? showInv() : showShop(); }
-
-        function showInv() {
-            document.getElementById('inv-wea-btn').classList.toggle('active', state.ui.category === 'wea');
-            document.getElementById('inv-pet-btn').classList.toggle('active', state.ui.category === 'pet');
-            const grid = document.getElementById('inv-grid'); grid.innerHTML = '';
-            state.user.collection.filter(n => n.startsWith(state.ui.category)).forEach(img => {
-                const div = document.createElement('div'); div.className = 'inv-slot';
-                div.innerHTML = `<img src="images/${img}" onerror="this.src='images/icon05.png'">`;
-                div.onclick = () => { document.getElementById('weapon-display').src = `images/${img}`; document.getElementById('sword-modal').style.display = 'flex'; };
-                grid.appendChild(div);
-            });
-            showPage('inv-page');
+        function updateCoinDisplay() {
+            if(window.state) {
+                document.getElementById('home-coin').innerText = state.user.coins;
+                if(document.getElementById('shop-coin')) document.getElementById('shop-coin').innerText = state.user.coins;
+                syncCloud();
+            }
         }
 
-        function showShop() {
-            document.getElementById('shop-wea-btn').classList.toggle('active', state.ui.category === 'wea');
-            document.getElementById('shop-pet-btn').classList.toggle('active', state.ui.category === 'pet');
-            const grid = document.getElementById('shop-grid'); grid.innerHTML = '';
-            for(let i=1; i<=20; i++) {
-                const imgName = `${state.ui.category}_${String(i).padStart(3,'0')}.png`;
-                const owned = state.user.collection.includes(imgName);
-                const div = document.createElement('div');
-                div.className = `shop-item ${owned ? 'owned' : 'locked'}`;
-                div.innerHTML = `<img src="images/${imgName}" onerror="this.parentElement.style.display='none'"><div class="shop-price-tag">${owned ? '已持有' : '💰 '+(i*100)}</div>`;
-                div.onclick = () => {
-                    if(!owned && state.user.coins >= i*100) {
-                        document.getElementById('confirm-msg').innerText = `是否花費 💰${i*100} 購買？`;
-                        document.getElementById('custom-confirm-modal').style.display = 'flex';
-                        document.getElementById('confirm-yes-btn').onclick = () => {
-                            state.user.coins -= i*100; state.user.collection.push(imgName);
-                            updateCoinDisplay(); showShop(); document.getElementById('custom-confirm-modal').style.display = 'none';
-                            document.getElementById('success-sfx').play();
-                        };
-                    }
-                };
-                grid.appendChild(div);
+        async function syncCloud() {
+            if(!state.user.id || state.user.id === 'guest') return;
+            try { await fb.updateDoc(fb.doc(fb.db, "students", state.user.id), { coins: state.user.coins, collection: state.user.collection, progress: state.user.progress, lastDailyDate: state.user.lastDaily }); } catch(e) {}
+        }
+
+        window.onload = () => {
+            $('open-choice').onclick = () => openLevelSelect('choice');
+            $('open-spell').onclick = () => openLevelSelect('spell');
+            $('open-cloze').onclick = () => openLevelSelect('cloze');
+            $('daily-btn').onclick = startDaily;
+            $('open-inv').onclick = showInv;
+            $('settings-trigger').onclick = () => $('settings-modal').style.display='flex';
+            $('settings-close').onclick = () => $('settings-modal').style.display='none';
+            $('next-btn').onclick = () => nextQuestion();
+            $('exit-game-btn').onclick = () => goBackOneLevel(); // 使用新邏輯
+            $('skip-vid').onclick = endOpening;
+            $('master-mute-btn').onclick = toggleMasterMute;
+            $('bgm-vol').onchange = updateAudio;
+            $('sfx-vol').onchange = updateAudio;
+            $('inv-wea-btn').onclick = () => { state.ui.category='wea'; showInv(); };
+            $('inv-pet-btn').onclick = () => { state.ui.category='pet'; showInv(); };
+            $('shop-wea-btn').onclick = () => { state.ui.category='wea'; showShop(); };
+            $('shop-pet-btn').onclick = () => { state.ui.category='pet'; showShop(); };
+        };
+
+        // 新增：退回一層的邏輯
+        function goBackOneLevel() {
+            if (state.game.mode === 'daily') {
+                showPage('home-page');
+            } else {
+                showPage('level-page');
             }
-            showPage('shop-page');
         }
 
         function openLevelSelect(mode) {
@@ -458,33 +549,49 @@
             showPage('level-page');
         }
 
-        function startDaily() {
-            if(state.user.lastDaily === new Date().toDateString()) return alert("今日已挑戰！");
-            state.game.mode = "daily";
-            state.game.pool = [...state.vocab].sort(()=>0.5-Math.random()).slice(0, 10).map((v, i) => ({...v, type: ['choice','spell','cloze'][i%3]}));
-            startGame();
-        }
-
         function startGame() { state.game.idx = 0; state.game.correct = 0; showPage('game-page'); renderQuestion(); }
 
         function renderQuestion() {
-            state.game.canAnswer = true; const q = state.game.pool[state.game.idx];
+            state.game.canAnswer = true; 
+            const q = state.game.pool[state.game.idx];
+            
+            const area = document.getElementById('action-area'); 
+            area.style.display = 'block'; 
+
             document.getElementById('game-progress-tag').innerText = `${state.game.idx + 1} / ${state.game.pool.length}`;
-            document.getElementById('correct-answer-display').style.display = 'none'; document.getElementById('next-btn').style.display = 'none';
-            const area = document.getElementById('action-area'); area.innerHTML = '';
+            document.getElementById('correct-answer-display').style.display = 'none'; 
+            document.getElementById('next-btn').style.display = 'none';
+            
+            area.innerHTML = '';
+
+            const posTag = q.p ? `<span style="font-size:0.9rem; color:#94a3b8; margin-left:8px;">${q.p}</span>` : '';
+
             if(q.type === 'spell') {
+                setTimeout(() => speak(q.en), 1000);
                 document.getElementById('q-main').innerHTML = `<button class="opt-btn" onclick="speak('${q.en}')">🔊 聽音朗讀</button>`;
-                document.getElementById('q-hint').innerText = `解釋：${q.cn}`;
-                const input = document.createElement('input'); input.className = 'login-input'; input.placeholder = "輸入英文...";
-                const btn = document.createElement('button'); btn.className = 'btn-solid'; btn.innerText = "提交"; btn.style.width="100%"; btn.style.marginTop="10px";
+                document.getElementById('q-hint').innerHTML = `解釋：${q.cn}<br><div style="margin-top: 10px; color: var(--gold); font-weight: normal; font-size: 1rem;">提示：${q.en.length} 個字母</div>`;
+                
+                const input = document.createElement('input'); 
+                input.className = 'login-input'; input.placeholder = "輸入英文..."; input.autocomplete = "off";
+                const btn = document.createElement('button'); 
+                btn.className = 'btn-solid'; btn.innerText = "提交"; btn.style.width="100%"; btn.style.marginTop="10px";
                 btn.onclick = () => checkAns(input.value.trim().toLowerCase() === q.en.toLowerCase(), q.en);
+                input.onkeyup = (e) => { if(e.key === 'Enter') btn.click(); };
                 area.append(input, btn);
+                input.focus();
             } else {
-                document.getElementById('q-main').innerText = q.type === 'choice' ? q.en : q.s.replace('______', '( ? )');
+                if(q.type === 'choice') {
+                    document.getElementById('q-main').innerHTML = `${q.en}${posTag}`;
+                } else {
+                    document.getElementById('q-main').innerHTML = q.s.replace('______', '( ? )');
+                }
+                
                 document.getElementById('q-hint').innerText = q.type === 'choice' ? "選擇解釋" : "選擇單字";
                 const correctVal = q.type === 'choice' ? q.cn : q.en;
                 makeOptions(correctVal, q.type === 'choice' ? 'cn' : 'en').forEach(opt => {
-                    const b = document.createElement('button'); b.className = 'opt-btn'; b.innerText = opt;
+                    const b = document.createElement('button'); 
+                    b.className = 'opt-btn'; 
+                    b.innerText = opt; 
                     b.onclick = () => checkAns(opt === correctVal, correctVal);
                     area.appendChild(b);
                 });
@@ -493,13 +600,25 @@
 
         function checkAns(isRight, correct) {
             if(!state.game.canAnswer) return; state.game.canAnswer = false;
+            
+            document.getElementById('action-area').style.display = 'none';
+
+            const q = state.game.pool[state.game.idx];
             if(isRight) {
-                state.game.correct++; state.user.coins += (state.game.mode === 'daily' ? 10 : 1);
+                state.game.correct++; state.user.coins += (state.game.mode === 'daily' ? 20 : 1);
                 document.getElementById('win-sfx').play(); document.getElementById('slash-layer').classList.add('slash-active'); document.body.classList.add('shake-active');
                 setTimeout(() => { document.getElementById('slash-layer').classList.remove('slash-active'); document.body.classList.remove('shake-active'); nextQuestion(); }, 800);
             } else {
-                document.getElementById('lose-sfx').play(); document.getElementById('correct-answer-display').innerText = `正確答案：${correct}`;
-                document.getElementById('correct-answer-display').style.display = 'block'; document.getElementById('next-btn').style.display = 'block';
+                document.getElementById('lose-sfx').play(); 
+                
+                let displayCorrect = correct;
+                if(q.type !== 'choice' && q.p) {
+                    displayCorrect = `${correct} <span style="font-size:1rem; opacity:0.8;">${q.p}</span>`;
+                }
+                
+                document.getElementById('correct-answer-display').innerHTML = `正確答案：${displayCorrect}`;
+                document.getElementById('correct-answer-display').style.display = 'block'; 
+                document.getElementById('next-btn').style.display = 'block';
             }
             updateCoinDisplay();
         }
@@ -507,45 +626,94 @@
         function nextQuestion() { state.game.idx++; if(state.game.idx < state.game.pool.length) renderQuestion(); else finishGame(); }
 
         function finishGame() {
-            const win = state.game.correct / state.game.pool.length >= 0.5;
+            const win = state.game.correct >= (state.game.pool.length / 2);
+            
             document.getElementById('result-img').src = win ? 'images/success01.png' : 'images/success02.png';
-            document.getElementById('result-overlay').style.display = 'flex'; document.getElementById('success-sfx').play();
-            if(state.game.mode === 'daily') state.user.lastDaily = new Date().toDateString();
+            const overlay = document.getElementById('result-overlay');
+            overlay.style.display = 'flex'; overlay.style.pointerEvents = 'none'; 
+            document.getElementById('success-sfx').play();
+            
             state.user.progress[state.game.mode+'_'+(state.game.mode==='daily'?Date.now():state.game.level)] = `${state.game.correct}/${state.game.pool.length}`;
-            setTimeout(closeResultImmediately, 2500);
+            if(state.game.mode === 'daily') state.user.lastDaily = new Date().toDateString();
+            
+            setTimeout(() => { 
+                overlay.style.display = 'none'; 
+                goBackOneLevel(); // 修改此處，改為退回一層
+            }, 2000);
         }
-
-        function closeResultImmediately() { document.getElementById('result-overlay').style.display = 'none'; goHome(); }
-        function updateCoinDisplay() { document.getElementById('home-coin').innerText = state.user.coins; if($('shop-coin')) $('shop-coin').innerText = state.user.coins; syncCloud(); }
-
-        async function syncCloud() {
-            if(state.user.isGuest || !state.user.id) return;
-            try { await fb.updateDoc(fb.doc(fb.db, "students", state.user.id), { coins: state.user.coins, collection: state.user.collection, progress: state.user.progress, lastDailyDate: state.user.lastDaily }); } catch(e) {}
-        }
-
-        function goHome() { showPage('home-page'); }
-        function toggleSettings(show) { document.getElementById('settings-modal').style.display = show ? 'flex' : 'none'; }
         
+        function showInv() {
+            document.getElementById('inv-wea-btn').classList.toggle('active', state.ui.category === 'wea');
+            document.getElementById('inv-pet-btn').classList.toggle('active', state.ui.category === 'pet');
+            const grid = document.getElementById('inv-grid'); grid.innerHTML = '';
+            state.user.collection.filter(n => n.startsWith(state.ui.category)).forEach(img => {
+                const div = document.createElement('div'); div.className = 'inv-slot';
+                div.innerHTML = `<img src="images/${img}" onerror="this.src='images/icon05.png'">`;
+                div.onclick = () => { document.getElementById('weapon-display').src = `images/${img}`; document.getElementById('sword-modal').style.display = 'flex'; };
+                grid.appendChild(div);
+            });
+            showPage('inv-page');
+        }
+
+        function showShop() {
+            document.getElementById('shop-wea-btn').classList.toggle('active', state.ui.category === 'wea');
+            document.getElementById('shop-pet-btn').classList.toggle('active', state.ui.category === 'pet');
+            const grid = document.getElementById('shop-grid'); grid.innerHTML = '';
+            for(let i=1; i<=20; i++) {
+                const imgName = `${state.ui.category}_${String(i).padStart(3,'0')}.png`;
+                const owned = state.user.collection.includes(imgName);
+                const div = document.createElement('div'); div.className = `shop-item ${owned ? 'owned' : 'locked'}`;
+                div.innerHTML = `<img src="images/${imgName}" onerror="this.parentElement.style.display='none'"><div class="shop-price-tag">${owned ? '已持有' : '💰 '+(i*100)}</div>`;
+                div.onclick = () => {
+                    if(!owned && state.user.coins >= i*100) {
+                        document.getElementById('confirm-msg').innerText = `是否花費 💰${i*100} 購買？`;
+                        document.getElementById('custom-confirm-modal').style.display = 'flex';
+                        document.getElementById('confirm-yes-btn').onclick = () => {
+                            state.user.coins -= i*100; state.user.collection.push(imgName);
+                            updateCoinDisplay(); showShop(); document.getElementById('custom-confirm-modal').style.display = 'none';
+                            document.getElementById('success-sfx').play();
+                        };
+                    }
+                };
+                grid.appendChild(div);
+            }
+            showPage('shop-page');
+        }
+
+        function startDaily() {
+            const now = new Date(); if(now.getDay() === 0 || now.getDay() === 6) return alert("週末不開放挑戰");
+            if(state.user.lastDaily === now.toDateString()) return alert("今日已挑戰");
+            state.game.mode = "daily";
+            state.game.pool = [...state.vocab].sort(()=>0.5-Math.random()).slice(0, 10).map((v, i) => ({...v, type: ['choice','spell','cloze'][i%3]}));
+            startGame();
+        }
+
+        function makeOptions(correct, key) {
+            let opts = [correct];
+            while(opts.length < 3) { 
+                let rItem = state.vocab[Math.floor(Math.random()*state.vocab.length)];
+                if(rItem && !opts.includes(rItem[key])) opts.push(rItem[key]); 
+            }
+            return opts.sort(() => 0.5 - Math.random());
+        }
+
+        function speak(txt) { window.speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(txt); u.lang = 'en-US'; window.speechSynthesis.speak(u); }
         function updateAudio() {
             const bgmVal = document.getElementById('bgm-vol').value; const sfxVal = document.getElementById('sfx-vol').value;
             document.getElementById('bg_music').volume = bgmVal; state.ui.sfxVol = sfxVal;
             ['win-sfx','lose-sfx','success-sfx'].forEach(id => document.getElementById(id).volume = sfxVal);
-            state.ui.isMuted = (bgmVal == 0 && sfxVal == 0); refreshMuteBtnUI();
         }
         function toggleMasterMute() {
             state.ui.isMuted = !state.ui.isMuted;
-            if(state.ui.isMuted) { state.ui.lastBgmVol = $('bgm-vol').value; state.ui.lastSfxVol = $('sfx-vol').value; $('bgm-vol').value = 0; $('sfx-vol').value = 0; }
-            else { $('bgm-vol').value = state.ui.lastBgmVol; $('sfx-vol').value = state.ui.lastSfxVol; }
+            const btn = document.getElementById('master-mute-btn');
+            if(state.ui.isMuted) { 
+                state.ui.lastBgmVol = $('bgm-vol').value; state.ui.lastSfxVol = $('sfx-vol').value; 
+                $('bgm-vol').value = 0; $('sfx-vol').value = 0; btn.innerText = "🔇 全部靜音中";
+            } else { 
+                $('bgm-vol').value = state.ui.lastBgmVol; $('sfx-vol').value = state.ui.lastSfxVol; btn.innerText = "🔊 聲音：開啟中";
+            }
             updateAudio();
         }
-        function refreshMuteBtnUI() { const btn = $('master-mute-btn'); btn.innerText = state.ui.isMuted ? "🔇 全部靜音中" : "🔊 聲音：開啟中"; btn.classList.toggle('is-muted', state.ui.isMuted); }
-        
-        function makeOptions(correct, key) {
-            let opts = [correct];
-            while(opts.length < 3) { let r = state.vocab[Math.floor(Math.random()*state.vocab.length)][key]; if(!opts.includes(r)) opts.push(r); }
-            return opts.sort(() => 0.5 - Math.random());
-        }
-        function speak(txt) { window.speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(txt); u.lang = 'en-US'; window.speechSynthesis.speak(u); }
     </script>
 </body>
 </html>
